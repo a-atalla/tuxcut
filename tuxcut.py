@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
-from gi.repository import Gtk
+import sys
+from PyQt4 import QtGui
 from TuxCut import TuxCut
 
 
-s=TuxCut()
-Gtk.main()
-
+app = QtGui.QApplication(sys.argv)
+tux = TuxCut()
+sys.exit(app.exec_())
