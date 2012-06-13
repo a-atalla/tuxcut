@@ -15,9 +15,12 @@ class TuxCut(QtGui.QMainWindow):
 		self._iface =None
 		self._isProtected = False
 		self._isFedora = True
+		
 		self._gwIP = self.default_gw()
 		self._gwMAC = self.gw_mac(self._gwIP)
-		print '###',self._iface
+		
+		print "The Mac is :",self._gwMAC
+		
 		self.enable_protection()
 		self.list_hosts(self._gwIP)
 		
@@ -46,38 +49,32 @@ class TuxCut(QtGui.QMainWindow):
 				
 
 	def gw_mac(self,gwip):
-		ans,unans = arping(gwip,timeout=3,verbose=False)
-		for s,r in ans.res:
-			return r.src
-		
-	def list_hosts(self, net):
-		print 1
+		arping = sp.Popen(['arp-scan',self._gwIP],stdout = sp.PIPE)
+		for line in arping.stdout:
+			if line.startswith(self._gwIP.split('.')[0]):
+				return line.split()[1]
+				
+	def list_hosts(self, ip):
 		if self._isProtected:
 			print "protected"
-			ans,unans = arping(net,timeout=3,verbose=False)
+			#ans,unans = arping(net,timeout=3,verbose=False)
+			arping = sp.Popen(['arp-scan',ip],stdout = sp.PIPE)
 		else:
-			print "not protected"
-			ans,unans = arping(net+'/24',timeout=1,verbose=False)
-		i= 1
-		for s,r in ans.res:
-			'''
-			## This piece of code slow down the scan process , and noot always get the hostname
-			hostname=['']
-			try:
-				hostname = socket.gethostbyaddr(r.psrc)
-			except socket.herror:
-				# failed to resolve
-				pass
-			'''
-			self.table_hosts.setRowCount(i)
-			self.table_hosts.setItem(i-1,0,QtGui.QTableWidgetItem(r.psrc))
-			self.table_hosts.setItem(i-1,1,QtGui.QTableWidgetItem(r.src))
-			self.table_hosts.setItem(i-1,2,QtGui.QTableWidgetItem(hostname[0]))
-			i=i+1
+			print "Not Protected"
+			arping = sp.Popen(['arp-scan',ip+'/24'],stdout = sp.PIPE)
+		i=1
+		for line in arping.stdout:
+			if line.startswith(ip.split('.')[0]):
+				print line.split()
+				ip = line.split()[0]
+				mac= line.split()[1]
+				self.table_hosts.setRowCount(i)
+				self.table_hosts.setItem(i-1,0,QtGui.QTableWidgetItem(ip))
+				self.table_hosts.setItem(i-1,1,QtGui.QTableWidgetItem(mac))
+				i=i+1
+					
 
-
-		
-	def enable_protection(self):     
+	def enable_protection(self):    
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		sp.Popen(['arptables','-P','IN','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		sp.Popen(['arptables','-P','OUTPUT','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
@@ -109,7 +106,6 @@ class TuxCut(QtGui.QMainWindow):
 		
 		
 	def on_protection_changes(self):
-		print 'status changes'
 		if self.cbox_protection.isChecked():
 			self.enable_protection()
 		else:
