@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 from PyQt4 import QtGui
 from TuxCut import TuxCut
