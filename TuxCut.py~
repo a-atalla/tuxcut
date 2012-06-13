@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import socket
+from scapy.all import arping
 import subprocess as sp
 from PyQt4 import QtCore,QtGui,uic
 
