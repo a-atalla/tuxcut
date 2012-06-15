@@ -178,8 +178,8 @@
    <slot>on_refresh_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>40</y>
+     <x>103</x>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
      <x>270</x>
@@ -194,12 +194,28 @@
    <slot>on_cut_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>40</y>
+     <x>208</x>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
      <x>320</x>
      <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_resume</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_resume_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>362</x>
+     <y>60</y>
     </hint>
    </hints>
   </connection>
@@ -208,5 +224,6 @@
   <slot>on_protection_changes()</slot>
   <slot>on_refresh_clicked()</slot>
   <slot>on_cut_clicked()</slot>
+  <slot>on_resume_clicked()</slot>
  </slots>
 </ui>

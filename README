@@ -1,2 +1,15 @@
-TuxCut Version 4
-tets
+TuxCut Version 4.0
+==================
+Features:
+  - Scan your network for live hosts.
+  - Protect your linux box from any arp spoof attack (like netcut).
+  - Change the MAC address of ur network adapter.
+  - Arpspoof any of the computers connected to your network.
+
+
+Dependancy : 
+============
+  - python 
+  - PyQt4
+  - arptables
+  - arp-scan
