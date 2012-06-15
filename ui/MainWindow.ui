@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>516</width>
-    <height>301</height>
+    <width>556</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,8 +20,8 @@
    <string>TuxCut-4.0</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../usr/share/tuxcut/pix/icon.png</normaloff>../../../../usr/share/tuxcut/pix/icon.png</iconset>
+   <iconset resource="../pix.qrc">
+    <normaloff>:/pix/pix/tuxcut.png</normaloff>:/pix/pix/tuxcut.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -47,6 +47,63 @@
        </widget>
       </item>
       <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="btn_changemac">
+        <property name="text">
+         <string>Change MAC</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/mac.png</normaloff>:/pix/pix/mac.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Current MAC Address :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="margin">
+         <number>1</number>
+        </property>
+        <property name="indent">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbl_mac">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -59,21 +116,24 @@
         </property>
        </spacer>
       </item>
-      <item>
-       <widget class="QPushButton" name="btn_changemac">
-        <property name="text">
-         <string>Change MAC</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QPushButton" name="btn_refresh">
         <property name="text">
          <string>Refresh Hosts</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/refresh.png</normaloff>:/pix/pix/refresh.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -85,6 +145,16 @@
         <property name="text">
          <string>Cut</string>
         </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/cut.png</normaloff>:/pix/pix/cut.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
@@ -92,10 +162,20 @@
         <property name="text">
          <string>Resume</string>
         </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/resume.png</normaloff>:/pix/pix/resume.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
+       <spacer name="horizontalSpacer_4">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -111,6 +191,16 @@
        <widget class="QPushButton" name="btn_about">
         <property name="text">
          <string>About</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/about.png</normaloff>:/pix/pix/about.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -152,8 +242,28 @@
     </item>
    </layout>
   </widget>
+  <action name="action_quit">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/close.png</normaloff>:/pix/pix/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="action_change_mac">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/mac.png</normaloff>:/pix/pix/mac.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change MAC</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../pix.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>cbox_protection</sender>
@@ -210,12 +320,60 @@
    <slot>on_resume_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>277</x>
-     <y>67</y>
+     <x>319</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
      <x>362</x>
      <y>60</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_quit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_quit_triggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_change_mac</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_mac()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_changemac</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_mac()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>77</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>14</y>
     </hint>
    </hints>
   </connection>
@@ -225,5 +383,7 @@
   <slot>on_refresh_clicked()</slot>
   <slot>on_cut_clicked()</slot>
   <slot>on_resume_clicked()</slot>
+  <slot>on_quit_triggered()</slot>
+  <slot>change_mac()</slot>
  </slots>
 </ui>

