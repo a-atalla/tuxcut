@@ -21,6 +21,7 @@ class TuxCut(QtGui.QMainWindow):
 		self._gwIP = self.default_gw()
 		self._gwMAC = self.gw_mac(self._gwIP)
 		self._my_mac = self.get_mymac()
+		print "Mymac IS : ",self._my_mac
 		self.lbl_mac.setText(self._my_mac)
 		
 		if not self._gwMAC==None:
@@ -98,16 +99,15 @@ class TuxCut(QtGui.QMainWindow):
 		proc = sp.Popen(['ifconfig',self._iface],stdout = sp.PIPE)
 		for line in proc.stdout:
 			if line.startswith('        ether'):
-				MAC =  line.split()[1]
-				
-		if not MAC==None:
-			return MAC
-		else:
-			for line in proc.stdout:
+				return  line.split()[1]
+			else:
 				if line.startswith(self._iface):
-					return line.split()[4]
-				
-				
+					if len(line.split())==5:
+						return line.split()[3]
+
+					
+		
+
 	def list_hosts(self, ip):
 		if self._isProtected:
 			print "protected"
