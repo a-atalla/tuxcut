@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import random
 import subprocess as sp
 from PyQt4 import QtCore,QtGui,uic
+from AboutDialog import AboutDialog
 import pix_rc
 
 class TuxCut(QtGui.QMainWindow):
@@ -19,16 +21,20 @@ class TuxCut(QtGui.QMainWindow):
 		self._cutted_hosts = {}
 		
 		self._gwIP = self.default_gw()
+		if  self._gwIP==None:
+			self.msg("TuxCut couldn't detect the gateway IP address")
 		self._gwMAC = self.gw_mac(self._gwIP)
 		self._my_mac = self.get_mymac()
-		print "Mymac IS : ",self._my_mac
-		self.lbl_mac.setText(self._my_mac)
+		if self._my_mac==None:
+			self.msg("TuxCut couldn't detect your MAC address")
+		else:
+			self.lbl_mac.setText(self._my_mac)
 		
 		if not self._gwMAC==None:
 			self.enable_protection()
 			self.list_hosts(self._gwIP)
 		else:
-			QtGui.QMessageBox
+			self.msg("TuxCut couldn't detect the gateway MAC address'")
 		self.show_Window()
 		
 		
@@ -58,6 +64,7 @@ class TuxCut(QtGui.QMainWindow):
 		if reason == QtGui.QSystemTrayIcon.DoubleClick:
 			if self.isVisible():
 				self.hide()
+				self.trayicon.showMessage('TuxCut is still Running', 'The programe is still running.\n Right click the trayicon to resore TuxCut or to Quit')
 			else:
 				self.show()
 				
@@ -69,7 +76,9 @@ class TuxCut(QtGui.QMainWindow):
 			event.ignore()     
 			if self.isVisible():
 				self.hide()
+				self.trayicon.showMessage('TuxCut is still Running', 'The programe is still running.\n Right click the trayicon to resore TuxCut or to Quit')
 		else:
+			self.disable_protection()
 			self.close()
 
 	def check_fedora(self):
@@ -102,11 +111,8 @@ class TuxCut(QtGui.QMainWindow):
 				return  line.split()[1]
 			else:
 				if line.startswith(self._iface):
-					if len(line.split())==5:
-						return line.split()[3]
-
-					
-		
+					if line.split()[3]=='HWaddr':
+						return line.split()[4]
 
 	def list_hosts(self, ip):
 		if self._isProtected:
@@ -220,3 +226,17 @@ class TuxCut(QtGui.QMainWindow):
 	def on_quit_triggered(self):
 		self._isQuit = True
 		self.closeEvent(QtGui.QCloseEvent)
+		
+	def on_about_clicked(self):
+		about_dialog = AboutDialog()
+		about_dialog.exec_()
+		
+	def msg(self,text):
+		msgBox = QtGui.QMessageBox()
+		msgBox.setText(text)
+		#msgBox.setInformativeText("Do you want to save your changes?")
+		msgBox.setStandardButtons(QtGui.QMessageBox.Close)
+		msgBox.setDefaultButton(QtGui.QMessageBox.Close)
+		ret = msgBox.exec_()
+		if ret==QtGui.QMessageBox.Close:
+			sys.exit()

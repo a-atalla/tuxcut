@@ -377,6 +377,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_about</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>483</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>412</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_protection_changes()</slot>
@@ -385,5 +401,6 @@
   <slot>on_resume_clicked()</slot>
   <slot>on_quit_triggered()</slot>
   <slot>change_mac()</slot>
+  <slot>on_about_clicked()</slot>
  </slots>
 </ui>
