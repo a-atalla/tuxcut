@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+## 3.21  start battery test
 import sys
 import os
 import random
@@ -115,13 +116,14 @@ class TuxCut(QtGui.QMainWindow):
 						return line.split()[4]
 
 	def list_hosts(self, ip):
+		live_hosts = []
 		if self._isProtected:
 			print "protected"
 			#ans,unans = arping(net,timeout=3,verbose=False)
-			arping = sp.Popen(['arp-scan','--interface',self._iface,ip],stdout = sp.PIPE)
+			arping = sp.Popen(['arp-scan','--interface',self._iface,ip],stdout = sp.PIPE,shell=False)
 		else:
 			print "Not Protected"
-			arping = sp.Popen(['arp-scan','--interface',self._iface,ip+'/24'],stdout = sp.PIPE)
+			arping = sp.Popen(['arp-scan','--interface',self._iface,ip+'/24'],stdout = sp.PIPE,shell=False)
 		i=1
 		for line in arping.stdout:
 			if line.startswith(ip.split('.')[0]):
@@ -131,9 +133,13 @@ class TuxCut(QtGui.QMainWindow):
 				self.table_hosts.setItem(i-1,0,QtGui.QTableWidgetItem(ip))
 				self.table_hosts.item(i-1,0).setIcon(QtGui.QIcon(':pix/pix/online.png'))
 				self.table_hosts.setItem(i-1,1,QtGui.QTableWidgetItem(mac))
+				live_hosts.append(ip)
 				i=i+1
-					
-
+				
+	def list_hostnames(self,list):
+		pass
+		
+			
 	def enable_protection(self):    
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		if self._isFedora:
@@ -148,7 +154,6 @@ class TuxCut(QtGui.QMainWindow):
 			sp.Popen(['arptables','-P','OUTPUT','DROP'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 			sp.Popen(['arptables','-A','INPUT','-s',self._gwIP,'--source-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 			sp.Popen(['arptables','-A','OUTPUT','-d',self._gwIP,'--destination-mac',self._gwMAC,'-j','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		
 		sp.Popen(['arp','-s',self._gwIP,self._gwMAC],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		
 		self._isProtected = True
@@ -157,8 +162,12 @@ class TuxCut(QtGui.QMainWindow):
 			
 		
 	def disable_protection(self):
-		sp.Popen(['arptables','-P','IN','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['arptables','-P','OUT','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		if self._isFedora:
+			sp.Popen(['arptables','-P','IN','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-P','OUT','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		else:
+			sp.Popen(['arptables','-P','INPUT','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			sp.Popen(['arptables','-P','OUTPUT','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		self._isProtected = False
 		
