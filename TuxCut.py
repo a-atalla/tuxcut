@@ -3,7 +3,9 @@
 import sys
 import os
 import random
+import socket
 import subprocess as sp
+from threading import Thread
 from PyQt4 import QtCore,QtGui,uic
 from AboutDialog import AboutDialog
 import pix_rc
@@ -74,7 +76,7 @@ class TuxCut(QtGui.QMainWindow):
 		This make the close button just hide the application
 		'''
 		if not self._isQuit:
-			event.ignore()     
+			event.ignore()
 			if self.isVisible():
 				self.hide()
 				self.trayicon.showMessage('TuxCut is still Running', 'The programe is still running.\n Right click the trayicon to resore TuxCut or to Quit')
@@ -135,10 +137,20 @@ class TuxCut(QtGui.QMainWindow):
 				self.table_hosts.setItem(i-1,1,QtGui.QTableWidgetItem(mac))
 				live_hosts.append(ip)
 				i=i+1
+		myThread = Thread(target=self.list_hostnames,args=(live_hosts,))
+		myThread.start()
 				
-	def list_hostnames(self,list):
-		pass
-		
+	def list_hostnames(self,ipList):
+		i=0
+		for ip in ipList:
+			try:
+				hostname= socket.gethostbyaddr(ip)
+				print hostname[0]
+				self.table_hosts.setItem(i,2,QtGui.QTableWidgetItem(hostname[0]))
+			except:
+				print "Couldn't Resolve  Host ",ip
+				self.table_hosts.setItem(i,2,QtGui.QTableWidgetItem("Not Resolved"))
+			i=i+1
 			
 	def enable_protection(self):    
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
