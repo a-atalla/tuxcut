@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-## 3.21  start battery test
 import sys
 import os
 import random
 import socket
 import subprocess as sp
 from threading import Thread
-from PyQt4 import QtCore,QtGui,uic
+from PyQt4 import QtCore,QtGui,uic,QtNetwork
 from AboutDialog import AboutDialog
 import pix_rc
 
@@ -15,8 +14,24 @@ class TuxCut(QtGui.QMainWindow):
 		QtGui.QMainWindow.__init__(self)
 		uic.loadUi('ui/MainWindow.ui',self)
 		
+		# List Available network interfaces
+		ifaces_names = []
+		ifaces_macs = []   
+		ifaces = QtNetwork.QNetworkInterface.allInterfaces()
+		for i in ifaces:
+			ifaces_names.append(str(i.name()))
+			ifaces_macs.append(str(i.hardwareAddress()))
+		Result,ok = QtGui.QInputDialog.getItem(self,self.tr("Network Interfaces"),self.tr("Select your Interface:"),ifaces_names,0,True)
+		if ok:
+			self._iface = Result
+			self._my_mac =ifaces_macs[ifaces_names.index(Result)]
+			for j in ifaces_names:
+				self.comboIfaces.addItem(j)
+			self.comboIfaces.setCurrentIndex(ifaces_names.index(Result))  # Set the selected interface card in the main windows comboBox
+		else:
+			self.msg(self.tr("You must select an interface card , TuxCut Will close"))
+		
 		self._gwMAC=None
-		self._iface =None
 		self._isProtected = False
 		self._isFedora = False
 		self.check_fedora()
@@ -25,20 +40,20 @@ class TuxCut(QtGui.QMainWindow):
 		
 		self._gwIP = self.default_gw()
 		if  self._gwIP==None:
-			self.msg("TuxCut couldn't detect the gateway IP address")
+			self.msg(self.tr("TuxCut couldn't detect the gateway IP address"))
 		self._gwMAC = self.gw_mac(self._gwIP)
-		self._my_mac = self.get_mymac()
 		if self._my_mac==None:
-			self.msg("TuxCut couldn't detect your MAC address")
+			self.msg(self.tr("TuxCut couldn't detect your MAC address"))
 		else:
 			self.lbl_mac.setText(self._my_mac)
 		
 		if not self._gwMAC==None:
 			self.enable_protection()
-			self.list_hosts(self._gwIP)
 		else:
-			self.msg("TuxCut couldn't detect the gateway MAC address'")
+			self.msg(self.tr("TuxCut couldn't detect the gateway MAC address\nThe protection mode couldn't be enabled"))
+			
 		self.show_Window()
+		self.list_hosts(self._gwIP)
 		
 		
 	def show_Window(self):
@@ -48,7 +63,7 @@ class TuxCut(QtGui.QMainWindow):
 
 		self.table_hosts.setColumnWidth(0,150)
 		self.table_hosts.setColumnWidth(1,150)
-		self.table_hosts.setColumnWidth(2,75)
+		self.table_hosts.setColumnWidth(2,200)
 		self.show()
 		self.tray_icon()
 
@@ -79,7 +94,7 @@ class TuxCut(QtGui.QMainWindow):
 			event.ignore()
 			if self.isVisible():
 				self.hide()
-				self.trayicon.showMessage('TuxCut is still Running', 'The programe is still running.\n Right click the trayicon to resore TuxCut or to Quit')
+				self.trayicon.showMessage(self.tr('TuxCut is still Running'),self.tr('The programe is still running.\n Double click the trayicon to resore TuxCut or to Quit'))
 		else:
 			self.disable_protection()
 			self.close()
@@ -91,11 +106,10 @@ class TuxCut(QtGui.QMainWindow):
 			self._isFedora = False
 			
 	def default_gw(self):
-		args = ['route','list']
 		gwip = sp.Popen(['ip','route','list'],stdout = sp.PIPE)
 		for line in  gwip.stdout:
 			if 'default' in line:
-				self._iface = line.split()[4]
+				#self._iface = line.split()[4]
 				return  line.split()[2]
 				
 				
@@ -106,22 +120,11 @@ class TuxCut(QtGui.QMainWindow):
 
 			if line.startswith(self._gwIP.split('.')[0]):
 				return line.split()[1]
-	
-	def get_mymac(self):
-		proc = sp.Popen(['ifconfig',self._iface],stdout = sp.PIPE)
-		for line in proc.stdout:
-			if line.startswith('        ether'):
-				return  line.split()[1]
-			else:
-				if line.startswith(self._iface):
-					if line.split()[3]=='HWaddr':
-						return line.split()[4]
 
 	def list_hosts(self, ip):
 		live_hosts = []
 		if self._isProtected:
 			print "protected"
-			#ans,unans = arping(net,timeout=3,verbose=False)
 			arping = sp.Popen(['arp-scan','--interface',self._iface,ip],stdout = sp.PIPE,shell=False)
 		else:
 			print "Not Protected"
@@ -186,10 +189,9 @@ class TuxCut(QtGui.QMainWindow):
 	def cut_process(self,victim_IP,row):
 		## Disable ip forward
 		proc = sp.Popen(['sysctl','-w','net.ipv4.ip_forward=0'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		print self._iface
+
 		### Start Arpspoofing the victim
 		proc = sp.Popen(['arpspoof','-i',self._iface,'-t',self._gwIP,victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		#self._cutted_hosts.setdefault(victim_IP,proc.pid)
 		self._cutted_hosts[victim_IP]=proc.pid
 		self.table_hosts.item(row,0).setIcon(QtGui.QIcon(':pix/pix/offline.png'))
 		print self._cutted_hosts
@@ -197,6 +199,13 @@ class TuxCut(QtGui.QMainWindow):
 	def resume_all(self):
 		sp.Popen(['sysctl','-w','net.ipv4.ip_forward=1'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		sp.Popen(['killall','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		sp.Popen(['killall','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		hosts_number = self.table_hosts.rowCount()
+		for i in range (0,self.table_hosts.rowCount()):
+			self.table_hosts.item(i,0).setIcon(QtGui.QIcon(':pix/pix/online.png'))
+			i=+1
+		self._cutted_hosts.clear()
+		
 		
 		
 	def resume_single_host(self,victim_IP,row):
@@ -229,6 +238,7 @@ class TuxCut(QtGui.QMainWindow):
 			self.disable_protection()
 			
 	def on_refresh_clicked(self):
+		self._iface= self.comboIfaces.currentText()
 		self.list_hosts(self._gwIP)
 	
 	def on_cut_clicked(self):
@@ -243,10 +253,11 @@ class TuxCut(QtGui.QMainWindow):
 		victim_IP =str(self.table_hosts.item(selectedRow,0).text())
 		if not victim_IP==None:
 			self.resume_single_host(victim_IP,selectedRow)
-		
+	
 	def on_quit_triggered(self):
 		self._isQuit = True
 		self.closeEvent(QtGui.QCloseEvent)
+		self.resume_all()
 		
 	def on_about_clicked(self):
 		about_dialog = AboutDialog()
@@ -255,9 +266,9 @@ class TuxCut(QtGui.QMainWindow):
 	def msg(self,text):
 		msgBox = QtGui.QMessageBox()
 		msgBox.setText(text)
-		#msgBox.setInformativeText("Do you want to save your changes?")
 		msgBox.setStandardButtons(QtGui.QMessageBox.Close)
 		msgBox.setDefaultButton(QtGui.QMessageBox.Close)
 		ret = msgBox.exec_()
 		if ret==QtGui.QMessageBox.Close:
-			sys.exit()
+			#sys.exit()
+			pass

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>316</height>
+    <width>644</width>
+    <height>297</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,106 +24,167 @@
     <normaloff>:/pix/pix/tuxcut.png</normaloff>:/pix/pix/tuxcut.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QCheckBox" name="cbox_protection">
-        <property name="minimumSize">
-         <size>
-          <width>101</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Protect Me</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QCheckBox" name="cbox_protection">
+          <property name="minimumSize">
+           <size>
+            <width>101</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Protection Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Network Interfaces :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboIfaces"/>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="btn_changemac">
+          <property name="text">
+           <string>Change MAC</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../pix.qrc">
+            <normaloff>:/pix/pix/mac.png</normaloff>:/pix/pix/mac.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Current MAC Address :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="margin">
+           <number>1</number>
+          </property>
+          <property name="indent">
+           <number>-1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_mac">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="btn_changemac">
-        <property name="text">
-         <string>Change MAC</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../pix.qrc">
-          <normaloff>:/pix/pix/mac.png</normaloff>:/pix/pix/mac.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Current MAC Address :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="margin">
+       <widget class="QTableWidget" name="table_hosts">
+        <property name="lineWidth">
          <number>1</number>
         </property>
-        <property name="indent">
-         <number>-1</number>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
         </property>
+        <property name="showGrid">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>IP Address</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>MAC Address</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Hostname</string>
+         </property>
+        </column>
        </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lbl_mac">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QPushButton" name="btn_refresh">
         <property name="text">
-         <string>Refresh Hosts</string>
+         <string>Refresh </string>
         </property>
         <property name="icon">
          <iconset resource="../pix.qrc">
@@ -175,14 +236,31 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_4">
+       <widget class="QPushButton" name="btn_resume_all">
+        <property name="text">
+         <string>Resume All</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/resume.png</normaloff>:/pix/pix/resume.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>20</width>
+          <height>40</height>
          </size>
         </property>
        </spacer>
@@ -206,41 +284,46 @@
       </item>
      </layout>
     </item>
-    <item>
-     <widget class="QTableWidget" name="table_hosts">
-      <property name="lineWidth">
-       <number>1</number>
-      </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-      <property name="showGrid">
-       <bool>false</bool>
-      </property>
-      <attribute name="horizontalHeaderVisible">
-       <bool>true</bool>
-      </attribute>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>IP Address</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>MAC Address</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Hostname</string>
-       </property>
-      </column>
-     </widget>
-    </item>
    </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>644</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <widget class="QMenu" name="menu_Language">
+     <property name="title">
+      <string>&amp;Language</string>
+     </property>
+     <addaction name="actionArabic"/>
+     <addaction name="actionEnglish"/>
+    </widget>
+    <addaction name="menu_Language"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout_TuxCut"/>
+    <addaction name="actionAbout_Qt"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Edit"/>
+   <addaction name="menu_Help"/>
   </widget>
   <action name="action_quit">
    <property name="icon">
@@ -260,6 +343,31 @@
     <string>Change MAC</string>
    </property>
   </action>
+  <action name="action_Quit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actionArabic">
+   <property name="text">
+    <string>Arabic</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionAbout_TuxCut">
+   <property name="text">
+    <string>About TuxCut</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../pix.qrc"/>
@@ -272,8 +380,8 @@
    <slot>on_protection_changes()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>24</y>
+     <x>57</x>
+     <y>51</y>
     </hint>
     <hint type="destinationlabel">
      <x>172</x>
@@ -288,8 +396,8 @@
    <slot>on_refresh_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>71</y>
+     <x>621</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>270</x>
@@ -304,8 +412,8 @@
    <slot>on_cut_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>208</x>
-     <y>71</y>
+     <x>638</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>320</x>
@@ -320,8 +428,8 @@
    <slot>on_resume_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>319</x>
-     <y>97</y>
+     <x>638</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>362</x>
@@ -368,8 +476,8 @@
    <slot>change_mac()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>46</y>
+     <x>83</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>453</x>
@@ -384,12 +492,28 @@
    <slot>on_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>483</x>
-     <y>82</y>
+     <x>638</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>412</x>
      <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_resume_all</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resume_all()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>572</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
@@ -402,5 +526,6 @@
   <slot>on_quit_triggered()</slot>
   <slot>change_mac()</slot>
   <slot>on_about_clicked()</slot>
+  <slot>resume_all()</slot>
  </slots>
 </ui>

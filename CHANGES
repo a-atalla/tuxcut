@@ -1,0 +1,3 @@
+# Version 5 
+- list the network interfaces , ,let the user select any of them
+- determine interface and its MAC address using PyQt4 method (instead of using subprocess)
