@@ -14,6 +14,12 @@ class TuxCut(QtGui.QMainWindow):
 		QtGui.QMainWindow.__init__(self)
 		uic.loadUi('ui/MainWindow.ui',self)
 		
+		# load ini
+		self.settings = QtCore.QSettings("linuxac.org","TuxCut")
+		if self.settings.value("Language")=="English":
+			self.actionArabic.setChecked(False)
+			self.actionEnglish.setChecked(True)
+		
 		# List Available network interfaces
 		ifaces_names = []
 		ifaces_macs = []   
@@ -272,3 +278,13 @@ class TuxCut(QtGui.QMainWindow):
 		if ret==QtGui.QMessageBox.Close:
 			#sys.exit()
 			pass
+		
+	def arabic_selected(self):
+		self.actionEnglish.setChecked(False)
+		self.settings.setValue("Language","Arabic")
+		
+	def english_selected(self):
+		self.actionArabic.setChecked(False)
+		self.settings.setValue("Language","English")
+		
+	
