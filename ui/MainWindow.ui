@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>TuxCut-4.0</string>
+   <string>TuxCut-5.0</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../pix.qrc">
@@ -292,7 +292,7 @@
      <x>0</x>
      <y>0</y>
      <width>644</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -321,7 +321,21 @@
     <addaction name="actionAbout_TuxCut"/>
     <addaction name="actionAbout_Qt"/>
    </widget>
+   <widget class="QMenu" name="menu_Utilities">
+    <property name="title">
+     <string>&amp;Utilities</string>
+    </property>
+    <widget class="QMenu" name="menuSpeed_Limiter">
+     <property name="title">
+      <string>Speed Limiter</string>
+     </property>
+     <addaction name="action_speedlimiter_on"/>
+     <addaction name="action_speedlimiter_off"/>
+    </widget>
+    <addaction name="menuSpeed_Limiter"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Utilities"/>
    <addaction name="menu_Edit"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -381,8 +395,31 @@
    </property>
   </action>
   <action name="actionAbout_Qt">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/qt-logo.png</normaloff>:/pix/pix/qt-logo.png</iconset>
+   </property>
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="action_speedlimiter_on">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>On</string>
+   </property>
+  </action>
+  <action name="action_speedlimiter_off">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Off</string>
    </property>
   </action>
  </widget>
@@ -397,8 +434,8 @@
    <slot>on_protection_changes()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>57</x>
-     <y>51</y>
+     <x>63</x>
+     <y>48</y>
     </hint>
     <hint type="destinationlabel">
      <x>172</x>
@@ -413,8 +450,8 @@
    <slot>on_refresh_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>621</x>
-     <y>55</y>
+     <x>638</x>
+     <y>53</y>
     </hint>
     <hint type="destinationlabel">
      <x>270</x>
@@ -430,7 +467,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>638</x>
-     <y>88</y>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>320</x>
@@ -446,7 +483,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>638</x>
-     <y>121</y>
+     <y>119</y>
     </hint>
     <hint type="destinationlabel">
      <x>362</x>
@@ -493,8 +530,8 @@
    <slot>change_mac()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>88</y>
+     <x>89</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>453</x>
@@ -582,6 +619,70 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_speedlimiter_on</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>limit_speed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_speedlimiter_off</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>unlimit_speed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAbout_Qt</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>about_qt()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAbout_TuxCut</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_protection_changes()</slot>
@@ -594,5 +695,8 @@
   <slot>resume_all()</slot>
   <slot>arabic_selected()</slot>
   <slot>english_selected()</slot>
+  <slot>limit_speed()</slot>
+  <slot>unlimit_speed()</slot>
+  <slot>about_qt()</slot>
  </slots>
 </ui>

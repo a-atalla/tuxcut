@@ -1,19 +1,20 @@
-TuxCut Version 4.0
-==================
+A netcut like application for Gnu/Linux operating systems
+
 Features:
-  - Scan your network for live hosts and list with hostnames.
-  - Protect your linux box from any arp spoof attack (like netcut).
-  - Change the MAC address of ur network adapter.
-  - Arpspoof any of the computers connected to your network.
+	- Hide your machine (ip/MAC) from arp scanner utilities.
+	- list all the live host in your LAN.
+	- cut the connection between any live host and the gateway.
+	- use wondershaper to limit your upload or download speed (wondershaper not avaliable in fedora repos).
+	
+Programming Language:
+	Python/Qt4
 
+Installation:
+	Download the packages from download section in bitbucket 
+	or get the source code and run  "python run.py" with root priviliages.
+	
+website:
+	http://tuxcut.net
 
-Dependancy : 
-============
-  - python 
-  - PyQt4
-  - arptables
-  - arp-scan
-
-Warning :
-=========
-Don't change you MAC address if you connect via wireless network with WPA/WPA2 encryption
+Developer:
+	Ahmed Atalla <a.atalla@hacari.org>

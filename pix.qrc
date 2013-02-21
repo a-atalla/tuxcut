@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="pix">
+    <file>pix/qt-logo.png</file>
     <file>pix/close.png</file>
     <file>pix/about.png</file>
     <file>pix/cut.png</file>
