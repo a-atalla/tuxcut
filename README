@@ -1,4 +1,4 @@
-A netcut like application for Gnu/Linux operating systems
+TuxCut is a utility that protect linux computers againest arpspoof attacks
 
 Features:
 	- Hide your machine (ip/MAC) from arp scanner utilities.
@@ -8,7 +8,15 @@ Features:
 	
 Programming Language:
 	Python/Qt4
-
+    
+Dependencies:
+    - python 
+    - PyQt4
+    - arp-scan 
+    - arptables
+    - dsniff    
+    - wondershaper
+    
 Installation:
 	Download the packages from download section in bitbucket 
 	or get the source code and run  "python run.py" with root priviliages.
