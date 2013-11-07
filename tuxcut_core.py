@@ -21,6 +21,7 @@ class TuxCut(QtGui.QMainWindow):
 			self.actionEnglish.setChecked(True)
 		
 		# List Available network interfaces
+		self.stopThread = True
 		ifaces_names = []
 		ifaces_macs = []   
 		ifaces = QtNetwork.QNetworkInterface.allInterfaces()
@@ -102,6 +103,7 @@ class TuxCut(QtGui.QMainWindow):
 				self.trayicon.showMessage(self.tr('TuxCut is still Running'),self.tr('The programe is still running.\n Double click the trayicon to resore TuxCut or to Quit'))
 		else:
 			self.disable_protection()
+			self.stopThread = True
 			self.close()
 
 	def check_fedora(self):
@@ -145,20 +147,24 @@ class TuxCut(QtGui.QMainWindow):
 				self.table_hosts.setItem(i-1,1,QtGui.QTableWidgetItem(mac))
 				live_hosts.append(ip)
 				i=i+1
-		myThread = Thread(target=self.list_hostnames,args=(live_hosts,))
-		myThread.start()
+		self.myThread = Thread(target=self.list_hostnames,args=(live_hosts,))
+		self.myThread.start()
 				
 	def list_hostnames(self,ipList):
-		i=0
-		for ip in ipList:
-			try:
-				hostname= socket.gethostbyaddr(ip)
-				print hostname[0]
-				self.table_hosts.setItem(i,2,QtGui.QTableWidgetItem(hostname[0]))
-			except:
-				print "Couldn't Resolve  Host ",ip
-				self.table_hosts.setItem(i,2,QtGui.QTableWidgetItem("Not Resolved"))
-			i=i+1
+		if self.stopThread:
+			return False
+		else:
+			i=0
+			for ip in ipList:
+				try:
+					hostname= socket.gethostbyaddr(ip)
+					print hostname[0]
+					self.table_hosts.setItem(i,2,QtGui.QTableWidgetItem(hostname[0]))
+				except:
+					print "Couldn't Resolve  Host ",ip
+					self.table_hosts.setItem(i,2,QtGui.QTableWidgetItem("Not Resolved"))
+				i=i+1
+				return True
 			
 	def enable_protection(self):    
 		sp.Popen(['arptables','-F'],stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE,shell=False)
