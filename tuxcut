@@ -1,5 +1,6 @@
 #!/bin/bash
 cd /opt/TuxCut
+
 cmd = ""
 if command -v gksudo >/dev/null 2>&1 ; then
 	cmd="gksudo"
@@ -15,4 +16,4 @@ elif command -v sudo >/dev/null 2>&1 ; then
 	cmd="sudo"
 fi
 
-$cmd python /opt/TuxCut/run.py
+$cmd python /opt/TuxCut/tuxcut.py
