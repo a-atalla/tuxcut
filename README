@@ -4,7 +4,7 @@ Features:
 	- Hide your machine (ip/MAC) from arp scanner utilities.
 	- list all the live host in your LAN.
 	- cut the connection between any live host and the gateway.
-	- use wondershaper to limit your upload or download speed (wondershaper not avaliable in fedora repos).
+	- use wondershaper to limit your upload or download speed.
 	
 Programming Language:
 	Python/Qt4
@@ -25,4 +25,4 @@ website:
 	http://tuxcut.net
 
 Developer:
-	Ahmed Atalla <a.atalla@hacari.org>
+	Ahmed Atalla <a.atalla[at]hacari[dot]org>
