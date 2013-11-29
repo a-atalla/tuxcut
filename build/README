@@ -1,7 +1,0 @@
-## RPM Converter command
-
-sudo almohawell -r --requires=python,PyQt4,arp-scan,dsniff,arptables_jf,wondershaper tuxcut_5.1_all.deb
-
-
-## wondershaper package
-ftp://ftp5.gwdg.de/pub/opensuse/repositories/home:/Kenzy:/packages/Fedora_19/x86_64/
