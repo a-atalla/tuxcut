@@ -7,19 +7,18 @@ Features:
 	- use wondershaper to control your upload or download speed limits.
 	
 Programming Language:
-	Python/Qt4
+	Python/Qt4  using PySide binding
     
 Dependencies:
     - python 
-    - PyQt4
-    - arp-scan 
+    - PySide
     - arptables
     - dsniff    
     - wondershaper
     
 Installation:
 	Download the packages from download section in bitbucket 
-	or get the source code and run  "python run.py" with root priviliages.
+	or get the source code and run  "python tuxcut.py" with root priviliages.
 	
 website:
 	http://tuxcut.net
