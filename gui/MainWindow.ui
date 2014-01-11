@@ -202,7 +202,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_cut">
+       <widget class="QPushButton" name="btnCut">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -222,7 +222,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_resume">
+       <widget class="QPushButton" name="btnResume">
         <property name="text">
          <string>Resume</string>
         </property>
@@ -239,7 +239,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_resume_all">
+       <widget class="QPushButton" name="btnResumeAll">
         <property name="text">
          <string>Resume All</string>
         </property>
@@ -269,7 +269,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_about">
+       <widget class="QPushButton" name="btnAbout">
         <property name="text">
          <string>About</string>
         </property>
@@ -302,6 +302,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
@@ -339,6 +340,15 @@
   <action name="actionEnglish">
    <property name="text">
     <string>English</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/images/close.png</normaloff>:/images/images/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
    </property>
   </action>
  </widget>
