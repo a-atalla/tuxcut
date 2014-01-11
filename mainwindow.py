@@ -1,5 +1,5 @@
 from core import TuxCut
-from PySide.QtGui import QMainWindow, QTableWidgetItem, QMessageBox, QIcon
+from PySide.QtGui import QMainWindow, QTableWidgetItem, QMessageBox, QIcon, QSystemTrayIcon, QMenu, QDesktopWidget
 from PySide.QtCore import Qt, SIGNAL, Slot, QTimer
 from gui.Ui_MainWindow import Ui_MainWindow
 import netinfo
@@ -10,9 +10,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
-        self.tblHosts.setColumnWidth(0, 125)
-        self.tblHosts.setColumnWidth(1, 150)
-        self.tblHosts.setColumnWidth(2, 150)
+        self.show_Window()
+        self.isQuit = False
         self.fill_active_interfaces()
         self.tuxcut = TuxCut(self.comboIfaces.currentText())
         self.fill_live_hosts()
@@ -31,8 +30,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.tuxcut.disable_protection()
 
+    def tray_icon(self):
+        self.trayicon=QSystemTrayIcon(QIcon(':/images/images/tuxcut.png'))
+        self.trayicon.show()
+        self.menu=QMenu()
+
+       # self.menu.addAction(self.action_change_mac)
+       # self.menu.addAction(self.action_quit)
+
+        self.trayicon.setContextMenu(self.menu)
+       # self.trayicon.activated.connect(self.onTrayIconActivated)
+
+    def show_Window(self):
+        screen = QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
+        self.tblHosts.setColumnWidth(0, 125)
+        self.tblHosts.setColumnWidth(1, 150)
+        self.tblHosts.setColumnWidth(2, 150)
+        self.show()
+        self.tray_icon()
+
     def fill_live_hosts(self):
         hosts_list = self.tuxcut.get_live_hosts().items()
+        print hosts_list
         self.tblHosts.setRowCount(len(hosts_list))
         if len(hosts_list) > 0:
             for host in hosts_list:
@@ -51,6 +72,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for iface in  ifaces_tupel:
             if not iface == 'lo':
                 ifaces_list.append(iface)
+                print '### ',iface
                 if len(ifaces_list)>0:
                     for iface in ifaces_list:
                         self.comboIfaces.addItem(iface)
@@ -59,9 +81,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tuxcut.protection_thread()
 
     def closeEvent(self, event):
-        self.tuxcut.disable_protection()
+        if not self.isQuit:
+            event.ignore()
+            if self.isVisible():
+                self.hide()
+        else:
+            self.tuxcut.disable_protection()
+            self.close()
 
-    def show_message(self,msg):
+
+
+    def show_message(self, msg):
         msgBox = QMessageBox()
         msgBox.setText(msg)
         msgBox.exec_()

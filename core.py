@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import netinfo
 from scapy.all import *
-from scapy.layers.l2 import arping
 import subprocess as sp
 import platform
 
 
 class TuxCut:
-    def __init__(self, iface):
-        self.iface = iface
+    def __init__(self, interface):
+        self.iface = interface
         if platform.linux_distribution()[0] == 'Fedora':
             self.isfedora = True
         else:
@@ -24,8 +23,6 @@ class TuxCut:
         else:
             print self.iface, 'No active connection detected'
             sys.exit()
-
-        #self.protection_thread()
 
     def get_iface(self):
         ifaces_list = []
@@ -45,11 +42,11 @@ class TuxCut:
                 return route['gateway']
 
     def get_gwhw(self):
-        alive, dead = arping(self.gwip, verbose=False)
-        try:
-            return alive[0][1].hwsrc
-        except:
-            print sys.exc_info()[0], ' ', sys.exc_info()[1]
+        alive = []
+        while len(alive) == 0:
+            print 'Rescan'
+            alive, dead = arping(self.gwip)
+        return alive[0][1].hwsrc
 
     def get_live_hosts(self):
         live_hosts = dict()
@@ -68,8 +65,8 @@ class TuxCut:
             print "This is a RedHat based distro "
             sp.Popen(['arptables', '-P', 'IN', 'DROP'])
             sp.Popen(['arptables', '-P', 'OUT', 'DROP'])
-            sp.Popen(['arptables', '-A', 'IN', '-s', self.gwip, '--source-hw', self.gwhw, '-j', 'ACCEPT'])
-            sp.Popen(['arptables', '-A', 'OUT', '-d', self.gwip, '--target-hw', self.gwhw, '-j', 'ACCEPT'])
+            sp.Popen(['arptables', '-A', 'IN', '-s', '%s' % self.gwip, '--source-hw', self.gwhw, '-j', 'ACCEPT'])
+            sp.Popen(['arptables', '-A', 'OUT', '-d', '%s' % self.gwip, '--target-hw', self.gwhw, '-j', 'ACCEPT'])
         else:
             print "This is not a RedHat based distro"
             sp.Popen(['arptables', '-P', 'INPUT', 'DROP'])
@@ -86,3 +83,7 @@ class TuxCut:
             sp.Popen(['arptables', '-P', 'INPUT', 'ACCEPT'])
             sp.Popen(['arptables', '-P', 'OUTPUT', 'ACCEPT'])
         sp.Popen(['arptables', '-F'])
+
+    def send_fake_packet(self, victimip):
+        pass
+
