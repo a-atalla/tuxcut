@@ -1,5 +1,5 @@
 ##TuxCut 
-Autility that protect linux computers againest arpspoof attacks
+A utility that protect linux computers againest arpspoof attacks
 
 ##Features:
 - Hide your machine (ip/MAC) from arp scanner utilities.
