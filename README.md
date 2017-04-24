@@ -1,7 +1,7 @@
-##TuxCut 
+## TuxCut 
 A utility that protect linux computers againest arpspoof attacks
 
-##Features:
+## Features:
 - Hide your machine (ip/MAC) from arp scanner utilities.
 - list all the live host in your LAN.
 - cut the connection between any live host and the gateway.
