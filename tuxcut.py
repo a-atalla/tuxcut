@@ -1,13 +1,19 @@
-
-#!/usr/bin/env python2
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
-import setproctitle
-from PySide.QtGui import QApplication
-from mainwindow import MainWindow
+from PyQt4 import QtCore,QtGui
+from tuxcut_core import *
 
-setproctitle.setproctitle('tuxcut')
-app = QApplication(sys.argv)
-win = MainWindow()
+app = QtGui.QApplication(sys.argv)
+settings = QtCore.QSettings("linuxac.org","TuxCut")
+translator = QtCore.QTranslator()
 
+lang = settings.value("Language","English")
+#lang = "Arabic"   # will be retreived from settings file
+print lang
+if lang=="Arabic":
+    translator.load("i18n/ar.qm")
+    app.installTranslator(translator)
+    app.setLayoutDirection(QtCore.Qt.RightToLeft)
+tux = TuxCut()
 sys.exit(app.exec_())

@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>644</width>
+    <height>297</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>TuxCut-5.0</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../pix.qrc">
+    <normaloff>:/pix/pix/tuxcut.png</normaloff>:/pix/pix/tuxcut.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QCheckBox" name="cbox_protection">
+          <property name="minimumSize">
+           <size>
+            <width>101</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Protection Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Network Interfaces :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboIfaces"/>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="btn_changemac">
+          <property name="text">
+           <string>Change MAC</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../pix.qrc">
+            <normaloff>:/pix/pix/mac.png</normaloff>:/pix/pix/mac.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Current MAC Address :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="margin">
+           <number>1</number>
+          </property>
+          <property name="indent">
+           <number>-1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_mac">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="table_hosts">
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="showGrid">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>IP Address</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>MAC Address</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Hostname</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QPushButton" name="btn_refresh">
+        <property name="text">
+         <string>Refresh </string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/refresh.png</normaloff>:/pix/pix/refresh.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_cut">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Cut</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/cut.png</normaloff>:/pix/pix/cut.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_resume">
+        <property name="text">
+         <string>Resume</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/resume.png</normaloff>:/pix/pix/resume.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_resume_all">
+        <property name="text">
+         <string>Resume All</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/resume.png</normaloff>:/pix/pix/resume.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_about">
+        <property name="text">
+         <string>About</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../pix.qrc">
+          <normaloff>:/pix/pix/about.png</normaloff>:/pix/pix/about.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>644</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <widget class="QMenu" name="menu_Language">
+     <property name="title">
+      <string>&amp;Language</string>
+     </property>
+     <addaction name="actionArabic"/>
+     <addaction name="actionEnglish"/>
+    </widget>
+    <addaction name="menu_Language"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout_TuxCut"/>
+    <addaction name="actionAbout_Qt"/>
+   </widget>
+   <widget class="QMenu" name="menu_Utilities">
+    <property name="title">
+     <string>&amp;Utilities</string>
+    </property>
+    <widget class="QMenu" name="menuSpeed_Limiter">
+     <property name="title">
+      <string>Speed Limiter</string>
+     </property>
+     <addaction name="action_speedlimiter_on"/>
+     <addaction name="action_speedlimiter_off"/>
+    </widget>
+    <addaction name="menuSpeed_Limiter"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Utilities"/>
+   <addaction name="menu_Edit"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <action name="action_quit">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/close.png</normaloff>:/pix/pix/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="action_change_mac">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/mac.png</normaloff>:/pix/pix/mac.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change MAC</string>
+   </property>
+  </action>
+  <action name="action_Quit">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/close.png</normaloff>:/pix/pix/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actionArabic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Arabic</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionAbout_TuxCut">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/about.png</normaloff>:/pix/pix/about.png</iconset>
+   </property>
+   <property name="text">
+    <string>About TuxCut</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="icon">
+    <iconset resource="../pix.qrc">
+     <normaloff>:/pix/pix/qt-logo.png</normaloff>:/pix/pix/qt-logo.png</iconset>
+   </property>
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="action_speedlimiter_on">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>On</string>
+   </property>
+  </action>
+  <action name="action_speedlimiter_off">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Off</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../pix.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>cbox_protection</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_protection_changes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>172</x>
+     <y>7</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_refresh</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_refresh_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>53</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>27</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_cut</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_cut_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>320</x>
+     <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_resume</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_resume_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>362</x>
+     <y>60</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_quit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_quit_triggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_change_mac</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_mac()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_changemac</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_mac()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>89</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_about</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>412</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_resume_all</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resume_all()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>572</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Quit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionArabic</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>arabic_selected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEnglish</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>english_selected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_speedlimiter_on</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>limit_speed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_speedlimiter_off</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>unlimit_speed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAbout_Qt</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>about_qt()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAbout_TuxCut</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>on_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>321</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>on_protection_changes()</slot>
+  <slot>on_refresh_clicked()</slot>
+  <slot>on_cut_clicked()</slot>
+  <slot>on_resume_clicked()</slot>
+  <slot>on_quit_triggered()</slot>
+  <slot>change_mac()</slot>
+  <slot>on_about_clicked()</slot>
+  <slot>resume_all()</slot>
+  <slot>arabic_selected()</slot>
+  <slot>english_selected()</slot>
+  <slot>limit_speed()</slot>
+  <slot>unlimit_speed()</slot>
+  <slot>about_qt()</slot>
+ </slots>
+</ui>

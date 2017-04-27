@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="pix">
+    <file>pix/qt-logo.png</file>
+    <file>pix/close.png</file>
+    <file>pix/about.png</file>
+    <file>pix/cut.png</file>
+    <file>pix/splash.png</file>
+    <file>pix/mac.png</file>
+    <file>pix/offline.png</file>
+    <file>pix/online.png</file>
+    <file>pix/refresh.png</file>
+    <file>pix/resume.png</file>
+    <file>pix/tuxcut.png</file>
+  </qresource>
+</RCC>
