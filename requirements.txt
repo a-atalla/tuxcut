@@ -1,0 +1,6 @@
+bottle==0.12.13
+netifaces==0.10.5
+scapy-python3==0.20
+requests==2.13.0
+wxPython==4.0.0a1
+PyInstaller==3.2.1
