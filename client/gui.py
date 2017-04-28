@@ -35,6 +35,10 @@ class MainFrame ( wx.Frame ):
 		self.toolbar = self.CreateToolBar( wx.TB_HORIZONTAL, wx.ID_ANY ) 
 		self.m_tool1 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh", u"Refresh", None ) 
 		
+		self.toolbar.AddSeparator()
+		
+		self.m_tool3 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/register.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		
 		self.m_tool2 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/exit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Exit", u"Exit", None ) 
 		
 		self.toolbar.Realize() 
