@@ -18,36 +18,32 @@ def get_hostname(ip):
             return line.split(' ')[-1].strip('.\n')
 
 
-@route('/')
+@route('/status')
 def get_ifaces():
     """
-    Welcome message at the server root
+    check if server is running
     """
     response.headers['Content-Type'] = 'application/json'
 
     return json.dumps({
-        'result': {
-            'status': 'success',
-            'msg': 'Welcome to TuxCut Server'
-        }
+        'status':  'success',
+        'msg': 'TuxCut server is running'
     })
 
 
-@route('/ifaces')
-def get_ifaces():
-    """
-    all the available network interfaces except  'lo'
-    """
-    response.headers['Content-Type'] = 'application/json'
-    ifaces = netifaces.interfaces()
-    if 'lo' in ifaces:
-        ifaces.remove('lo')
-    return json.dumps({
-        'result': {
-            'status': 'success',
-            'ifaces': ifaces
-        }
-    })
+# @route('/ifaces')
+# def get_ifaces():
+#     """
+#     all the available network interfaces except  'lo'
+#     """
+#     response.headers['Content-Type'] = 'application/json'
+#     ifaces = netifaces.interfaces()
+#     if 'lo' in ifaces:
+#         ifaces.remove('lo')
+#     return json.dumps({
+#         'status': 'success',
+#         'ifaces': ifaces
+#     })
 
 
 @route('/my/<iface>')
@@ -64,10 +60,8 @@ def get_my(iface):
     else:
         # iface not connected
         return json.dumps({
-            'result': {
-                'status': 'error',
-                'msg': 'Network Card ({}) is not connected to any network'.format(iface)
-            }
+            'status': 'error',
+            'msg': 'Network Card ({}) is not connected to any network'.format(iface)
         })
 
     return json.dumps({
@@ -82,33 +76,40 @@ def get_my(iface):
     })
 
 
-@route('/gw/<my_ip>')
-def get_default_gw(my_ip):
+@route('/gw')
+def get_default_gw():
     """
     Get the default gw ip address with the iface
     """
     response.headers['Content-Type'] = 'application/json'
-    default_gw = netifaces.gateways()['default'][netifaces.AF_INET]
 
-    # initialize gw_mac with empty string
-    gw_mac = ''
+    if netifaces.AF_INET in netifaces.gateways()['default']:
+        default_gw = netifaces.gateways()['default'][netifaces.AF_INET]
 
-    # send arp packet to gw to get the MAC Address of the router
-    results, unanswered = sr(ARP(op=ARP.who_has, psrc=my_ip, pdst='192.168.1.1'))
-    for r in results[0]:
-        if r.psrc == default_gw[0]:
-            gw_mac = r.hwsrc
+        # initialize gw_mac with empty string
+        gw_mac = ''
 
-    return json.dumps({
-        'result': {
-            'statis': 'success',
+        # send arp packet to gw to get the MAC Address of the router
+        results, unanswered = sr(ARP(op=ARP.who_has, psrc='8.8.8.8', pdst=default_gw[0]))
+        for r in results[0]:
+            if r.psrc == default_gw[0]:
+                gw_mac = r.hwsrc
+
+        return json.dumps({
+            'status': 'success',
             'gw': {
                 'ip': default_gw[0],
                 'mac': gw_mac,
+                'hostname': get_hostname(default_gw[0]),
                 'iface': default_gw[1]
             }
-        }
-    })
+        })
+    else:
+        print('No internet')
+        return json.dumps({
+            'status': 'error',
+            'msg': 'This computer is not connected'
+        })
 
 
 @route('/scan/<gw_ip>')
