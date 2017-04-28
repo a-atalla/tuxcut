@@ -1,5 +1,5 @@
 import wx
-from views import MainFrameView
+from main_frame import MainFrameView
 
 if __name__ == '__main__':
     app = wx.App(redirect=False)

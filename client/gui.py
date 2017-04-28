@@ -33,6 +33,10 @@ class MainFrame ( wx.Frame ):
 		self.SetSizer( bSizer7 )
 		self.Layout()
 		self.toolbar = self.CreateToolBar( wx.TB_HORIZONTAL, wx.ID_ANY ) 
+		self.m_tool1 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh", u"Refresh", None ) 
+		
+		self.m_tool2 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/exit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Exit", u"Exit", None ) 
+		
 		self.toolbar.Realize() 
 		
 		self.m_menubar1 = wx.MenuBar( 0 )
@@ -46,8 +50,20 @@ class MainFrame ( wx.Frame ):
 		
 		
 		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.Bind( wx.EVT_TOOL, self.on_refresh, id = self.m_tool1.GetId() )
+		self.Bind( wx.EVT_TOOL, self.on_exit, id = self.m_tool2.GetId() )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_refresh( self, event ):
+		event.Skip()
+	
+	def on_exit( self, event ):
+		event.Skip()
 	
 
