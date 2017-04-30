@@ -1,3 +1,4 @@
+import sys
 import requests
 from threading import Thread
 import wx
@@ -11,6 +12,9 @@ class MainFrameView(MainFrame):
         self._gw = {
             'ip': '', 'mac': '', 'hostname': ''
         }
+        self._my = {
+            'ip': '', 'mac': '', 'hostname': ''
+        }
         # Check tuxcut server
         if not self.is_server():
             self.show_dialog('error', 'TuxCut Server stopped', 'PLease start TuxCut server and rerun the appp')
@@ -18,6 +22,7 @@ class MainFrameView(MainFrame):
         else:
             # Get the gw
             self.get_gw()
+            # TODO: Get my info
 
             # setup host_view
             self.hosts_view.AppendIconTextColumn('', width=30)
@@ -33,6 +38,7 @@ class MainFrameView(MainFrame):
 
     def on_exit(self, event):
         print('Exit')
+        self.unprotect()
         self.Close()
 
     def on_refresh(self, event):
@@ -75,6 +81,34 @@ class MainFrameView(MainFrame):
                 self.Close()
         except Exception as e:
             pass
+
+    def toggle_protection(self, event):
+        if self.cb_protection.GetValue():
+            self.protect()
+        else:
+            self.unprotect()
+            
+    def protect(self):
+        """
+        Enable Protection Mode
+        """
+        try:
+            res = requests.post('http://127.0.0.1:8013/protect', data=self._gw)
+            if res.status_code == 200 and res.json()['status'] == 'success':
+                self.PushStatusText('Protection Enabled')
+        except Exception as e:
+            print(sys.exc_info()[1])
+    
+    def unprotect(self):
+        """
+        Disable Protection Mode
+        """
+        try:
+            res = requests.get('http://127.0.0.1:8013/unprotect')
+            if res.status_code == 200 and res.json()['status'] == 'success':
+                self.PushStatusText('Protection Disabled')
+        except Exception as e:
+            print(sys.exc_info()[1])
 
     def show_dialog(self, code, title, msg):
         if code == 'error':

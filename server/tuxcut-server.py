@@ -1,10 +1,20 @@
 import sys
+import logging
 import subprocess as sp
 import netifaces
 import json
 from scapy.all import *
 from bottle import route, run, error
 from bottle import request, response
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('/var/log/tuxcut/tuxcut-server.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
 
 
 def get_hostname(ip):
@@ -135,6 +145,49 @@ def scan(gw_ip):
     })
 
 
+@route('/protect', method='POST')
+def enable_protection():
+    response.headers['Content-Type'] = 'application/json'
+    
+    gw_ip = request.forms.get('ip')
+    gw_mac = request.forms.get('mac')
+
+    try:
+        sp.Popen(['arptables', '-F'])
+        sp.Popen(['arptables', '-P', 'INPUT', 'DROP'])
+        sp.Popen(['arptables', '-P', 'OUTPUT', 'DROP'])
+        sp.Popen(['arptables', '-A', 'INPUT', '-s', gw_ip, '--source-mac', gw_mac, '-j', 'ACCEPT'])
+        sp.Popen(['arptables', '-A', 'OUTPUT', '-d', gw_ip, '--destination-mac', gw_mac, '-j', 'ACCEPT'])
+        sp.Popen(['arp', '-s',  gw_ip, gw_mac ])
+        return json.dumps({
+            'status': 'success',
+            'msg': 'Protection Enabled'
+        })
+    except Exception as e:
+        logger.error(sys.exc_info()[1], exc_info=True)
+        return json.dumps({
+            'status': 'error',
+            'msg': sys.exc_info()[1]
+        })
+
+@route('/unprotect')
+def disable_protection():
+    response.headers['Content-Type'] = 'application/json'
+    try:
+        sp.Popen(['arptables', '-P', 'INPUT', 'ACCEPT'])
+        sp.Popen(['arptables', '-P', 'OUTPUT', 'ACCEPT'])
+        sp.Popen(['arptables', '-F'])
+        return json.dumps({
+            'status': 'success',
+            'msg': 'Protection Disabled'
+        })
+    except Exception as e:
+        logger.error(sys.exc_info()[1], exc_info=True)
+        return json.dumps({
+            'status': 'error',
+            'msg': sys.exc_info()[1]
+        })
+    
 
 
 if __name__ == '__main__':

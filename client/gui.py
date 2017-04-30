@@ -24,6 +24,14 @@ class MainFrame ( wx.Frame ):
 		
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
+		bSizer2 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.cb_protection = wx.CheckBox( self, wx.ID_ANY, u"Protect My Computer", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.cb_protection, 0, wx.ALL, 5 )
+		
+		
+		bSizer7.Add( bSizer2, 0, 0, 5 )
+		
 		self.hosts_view = wx.dataview.DataViewListCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), wx.dataview.DV_ROW_LINES )
 		self.hosts_view.SetFont( wx.Font( 10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 		
@@ -56,6 +64,7 @@ class MainFrame ( wx.Frame ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.cb_protection.Bind( wx.EVT_CHECKBOX, self.toggle_protection )
 		self.Bind( wx.EVT_TOOL, self.on_refresh, id = self.m_tool1.GetId() )
 		self.Bind( wx.EVT_TOOL, self.on_exit, id = self.m_tool2.GetId() )
 	
@@ -64,6 +73,9 @@ class MainFrame ( wx.Frame ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def toggle_protection( self, event ):
+		event.Skip()
+	
 	def on_refresh( self, event ):
 		event.Skip()
 	
