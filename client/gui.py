@@ -41,14 +41,6 @@ class MainFrame ( wx.Frame ):
 		self.SetSizer( bSizer7 )
 		self.Layout()
 		self.toolbar = self.CreateToolBar( wx.TB_HORIZONTAL, wx.ID_ANY ) 
-		self.m_tool1 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh", u"Refresh", None ) 
-		
-		self.toolbar.AddSeparator()
-		
-		self.m_tool3 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/register.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
-		
-		self.m_tool2 = self.toolbar.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"icons/exit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Exit", u"Exit", None ) 
-		
 		self.toolbar.Realize() 
 		
 		self.m_menubar1 = wx.MenuBar( 0 )
@@ -60,13 +52,27 @@ class MainFrame ( wx.Frame ):
 		
 		self.SetMenuBar( self.m_menubar1 )
 		
+		self.ctx_menu = wx.Menu()
+		self.m_menuItem2 = wx.MenuItem( self.ctx_menu, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.ctx_menu.Append( self.m_menuItem2 )
+		
+		self.m_menuItem3 = wx.MenuItem( self.ctx_menu, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.ctx_menu.Append( self.m_menuItem3 )
+		
+		self.m_menuItem4 = wx.MenuItem( self.ctx_menu, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.ctx_menu.Append( self.m_menuItem4 )
+		
+		self.m_menuItem5 = wx.MenuItem( self.ctx_menu, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.ctx_menu.Append( self.m_menuItem5 )
+		
+		self.Bind( wx.EVT_RIGHT_DOWN, self.MainFrameOnContextMenu ) 
+		
 		
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
 		self.cb_protection.Bind( wx.EVT_CHECKBOX, self.toggle_protection )
-		self.Bind( wx.EVT_TOOL, self.on_refresh, id = self.m_tool1.GetId() )
-		self.Bind( wx.EVT_TOOL, self.on_exit, id = self.m_tool2.GetId() )
+		self.hosts_view.Bind( wx.EVT_RIGHT_UP, self.show_ctx_menu )
 	
 	def __del__( self ):
 		pass
@@ -76,10 +82,10 @@ class MainFrame ( wx.Frame ):
 	def toggle_protection( self, event ):
 		event.Skip()
 	
-	def on_refresh( self, event ):
+	def show_ctx_menu( self, event ):
 		event.Skip()
 	
-	def on_exit( self, event ):
-		event.Skip()
-	
+	def MainFrameOnContextMenu( self, event ):
+		self.PopupMenu( self.ctx_menu, event.GetPosition() )
+		
 

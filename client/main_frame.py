@@ -3,33 +3,60 @@ import requests
 from threading import Thread
 import wx
 from gui import MainFrame
+import icons
 
 
 class MainFrameView(MainFrame):
     def __init__(self, parent):
         super(MainFrameView, self).__init__(parent)
         self.CreateStatusBar()
-        self._gw = {
-            'ip': '', 'mac': '', 'hostname': ''
-        }
-        self._my = {
-            'ip': '', 'mac': '', 'hostname': ''
-        }
+        self.setup_toolbar()
+        self.Centre()
+
+        self.SetIcon(icons.ninja_32.GetIcon())
+
+        self._gw = dict()
+        self._my = dict()
+        self.live_hosts = list()
+
         # Check tuxcut server
         if not self.is_server():
-            self.show_dialog('error', 'TuxCut Server stopped', 'PLease start TuxCut server and rerun the appp')
+            self.show_dialog('error', 'TuxCut Server stopped', 'Please start TuxCut server and rerun the appp')
             self.Close()
         else:
             # Get the gw
             self.get_gw()
-            # TODO: Get my info
+            iface = self._gw['iface']
+            self.get_my(iface)
 
             # setup host_view
             self.hosts_view.AppendIconTextColumn('', width=30)
             self.hosts_view.AppendTextColumn('IP Address', width=150)
             self.hosts_view.AppendTextColumn('MAC Address', width=150)
             self.hosts_view.AppendTextColumn('Hostname')
+
             self.trigger_thread()
+
+    def setup_toolbar(self):
+        tbtn_refresh = self.toolbar.AddTool(-1 , '', icons.refresh_32.GetBitmap(), shortHelp='Refresh')
+        tbtn_cut = self.toolbar.AddTool(-1, '', icons.cut_32.GetBitmap(), shortHelp='Cut')
+        tbtn_resume = self.toolbar.AddTool(-1, '', icons.resume_32.GetBitmap(), shortHelp='Resume')
+
+        self.toolbar.AddSeparator()
+        tbtn_register = self.toolbar.AddTool(-1, '', icons.register_32.GetBitmap(), shortHelp='Registeration')
+        tbtn_exit = self.toolbar.AddTool(-1 , '', icons.exit_32.GetBitmap())
+
+        self.Bind(wx.EVT_TOOL, self.on_refresh, tbtn_refresh)
+        self.Bind(wx.EVT_TOOL, self.on_cut, tbtn_cut)
+        self.Bind(wx.EVT_TOOL, self.on_exit, tbtn_exit)
+
+    def on_cut(self, event):
+        row = self.hosts_view.GetSelectedRow()
+        if not row == wx.NOT_FOUND:
+            print(self.hosts_view.GetTextValue(row, 1))
+        else:
+            print('please select a victim')
+
 
     def trigger_thread(self):
         self.PushStatusText('Refreshing hosts list ...')
@@ -45,16 +72,16 @@ class MainFrameView(MainFrame):
         self.trigger_thread()
 
     def t_get_hosts(self):
-        res = requests.get('http://127.0.0.1:8013/scan/192.168.1.9')
+        res = requests.get('http://127.0.0.1:8013/scan/{}'.format(self._my['ip']))
         if res.status_code == 200:
-            live_hosts = res.json()['result']['hosts']
-            wx.CallAfter(self.fill_hosts_view, live_hosts)
+            self.live_hosts = res.json()['result']['hosts']
+            wx.CallAfter(self.fill_hosts_view, self.live_hosts)
 
     def fill_hosts_view(self, live_hosts):
         self.hosts_view.DeleteAllItems()
         for host in live_hosts:
             self.hosts_view.AppendItem([
-                wx.dataview.DataViewIconText('', icon=wx.Icon('icons/online-24.png')),
+                wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon()),
                 host['ip'],
                 host['mac'],
                 host['hostname']
@@ -76,6 +103,20 @@ class MainFrameView(MainFrame):
             res = requests.get('http://127.0.0.1:8013/gw')
             if res.status_code == 200 and res.json()['status'] == 'success':
                 self._gw = res.json()['gw']
+            elif res.status_code == 200 and res.json()['status'] == 'error':
+                self.show_dialog('error', 'Error', res.json()['msg'])
+                self.Close()
+                sys.exit()
+        except Exception as e:
+            pass
+
+    def get_my(self, iface):
+        try:
+            res = requests.get('http://127.0.0.1:8013/my/{}'.format(iface))
+
+            if res.status_code == 200 and res.json()['status'] == 'success':
+                self._my = res.json()['my']
+
             elif res.status_code == 200 and res.json()['status'] == 'error':
                 self.show_dialog('error', 'Error', res.json()['msg'])
                 self.Close()
@@ -109,6 +150,7 @@ class MainFrameView(MainFrame):
                 self.PushStatusText('Protection Disabled')
         except Exception as e:
             print(sys.exc_info()[1])
+
 
     def show_dialog(self, code, title, msg):
         if code == 'error':
