@@ -1,6 +1,13 @@
+appdirs==1.4.3
+APScheduler==3.3.1
 bottle==0.12.13
 netifaces==0.10.5
-scapy-python3==0.20
-requests==2.13.0
-wxPython==4.0.0a1
+packaging==16.8
 PyInstaller==3.2.1
+pyparsing==2.2.0
+pytz==2017.2
+requests==2.13.0
+scapy-python3==0.20
+six==1.10.0
+tzlocal==1.4
+wxPython==4.0.0a1

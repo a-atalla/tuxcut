@@ -18,7 +18,7 @@ import wx.dataview
 class MainFrame ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"TuxCut Pro", pos = wx.DefaultPosition, size = wx.Size( 750,400 ), style = wx.CLOSE_BOX|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"TuxCut Pro", pos = wx.DefaultPosition, size = wx.Size( 750,400 ), style = wx.CAPTION|wx.CLOSE_BOX )
 		
 		self.SetSizeHints( wx.Size( 750,400 ), wx.Size( 750,400 ) )
 		
@@ -72,7 +72,6 @@ class MainFrame ( wx.Frame ):
 		
 		# Connect Events
 		self.cb_protection.Bind( wx.EVT_CHECKBOX, self.toggle_protection )
-		self.hosts_view.Bind( wx.EVT_RIGHT_UP, self.show_ctx_menu )
 	
 	def __del__( self ):
 		pass
@@ -80,9 +79,6 @@ class MainFrame ( wx.Frame ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def toggle_protection( self, event ):
-		event.Skip()
-	
-	def show_ctx_menu( self, event ):
 		event.Skip()
 	
 	def MainFrameOnContextMenu( self, event ):
