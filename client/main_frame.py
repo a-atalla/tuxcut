@@ -18,6 +18,7 @@ class MainFrameView(MainFrame):
         self._gw = dict()
         self._my = dict()
         self.live_hosts = list()
+        self._offline_hosts = list()
 
         # Check tuxcut server
         if not self.is_server():
@@ -38,18 +39,20 @@ class MainFrameView(MainFrame):
             self.trigger_thread()
 
     def setup_toolbar(self):
-        tbtn_refresh = self.toolbar.AddTool(-1 , '', icons.refresh_32.GetBitmap(), shortHelp='Refresh')
+        tbtn_refresh = self.toolbar.AddTool(-1, '', icons.refresh_32.GetBitmap(), shortHelp='Refresh')
         tbtn_cut = self.toolbar.AddTool(-1, '', icons.cut_32.GetBitmap(), shortHelp='Cut')
         tbtn_resume = self.toolbar.AddTool(-1, '', icons.resume_32.GetBitmap(), shortHelp='Resume')
 
         self.toolbar.AddSeparator()
-        tbtn_register = self.toolbar.AddTool(-1, '', icons.register_32.GetBitmap(), shortHelp='Registeration')
-        tbtn_exit = self.toolbar.AddTool(-1 , '', icons.exit_32.GetBitmap())
+        tbtn_exit = self.toolbar.AddTool(-1, '', icons.exit_32.GetBitmap())
 
         self.Bind(wx.EVT_TOOL, self.on_refresh, tbtn_refresh)
         self.Bind(wx.EVT_TOOL, self.on_cut, tbtn_cut)
         self.Bind(wx.EVT_TOOL, self.on_resume, tbtn_resume)
         self.Bind(wx.EVT_TOOL, self.on_exit, tbtn_exit)
+
+    def set_status(self, msg):
+        self.PushStatusText(msg)
 
     def on_cut(self, event):
 
@@ -65,24 +68,17 @@ class MainFrameView(MainFrame):
             if res.status_code == 200 and res.json()['status'] == 'success':
                 offline_icon = wx.dataview.DataViewIconText('', icon=icons.offline_24.GetIcon())
                 self.hosts_view.SetValue(offline_icon, row, 0)
+                self.set_status('{} is now offline'.format(new_victim['ip']))
+
+                if new_victim['ip'] not in self._offline_hosts:
+                    self._offline_hosts.append(new_victim['ip'])
         else:
-            self.PushStatusText('please select a victim to cut')
+            self.set_status('please select a victim to cut')
 
     def on_resume(self, event):
-        row = self.hosts_view.GetSelectedRow()
-        if not row == wx.NOT_FOUND:
-            victim = {
-                'ip': self.hosts_view.GetTextValue(row, 1),
-                'mac': self.hosts_view.GetTextValue(row, 2),
-                'hostname': self.hosts_view.GetTextValue(row, 3)
-            }
-
-            res = requests.post('http://127.0.0.1:8013/resume', json=victim)
-            if res.status_code == 200 and res.json()['status'] == 'success':
-                online_icon = wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon())
-                self.hosts_view.SetValue(online_icon, row, 0)
-        else:
-            self.PushStatusText('Host resumed')
+        self.set_status('Resuming host ...')
+        t = Thread(target=self.t_resume)
+        t.start()
 
     def trigger_thread(self):
         self.PushStatusText('Refreshing hosts list ...')
@@ -103,11 +99,32 @@ class MainFrameView(MainFrame):
             self.live_hosts = res.json()['result']['hosts']
             wx.CallAfter(self.fill_hosts_view, self.live_hosts)
 
+    def t_resume(self):
+        row = self.hosts_view.GetSelectedRow()
+        if not row == wx.NOT_FOUND:
+            victim = {
+                'ip': self.hosts_view.GetTextValue(row, 1),
+                'mac': self.hosts_view.GetTextValue(row, 2),
+                'hostname': self.hosts_view.GetTextValue(row, 3)
+            }
+
+            res = requests.post('http://127.0.0.1:8013/resume', json=victim)
+            if res.status_code == 200 and res.json()['status'] == 'success':
+                online_icon = wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon())
+                self.hosts_view.SetValue(online_icon, row, 0)
+                if victim['ip'] in self._offline_hosts:
+                    self._offline_hosts.remove(victim['ip'])
+                wx.CallAfter(self.set_status, '{} is back online'.format(victim['ip']))
+
     def fill_hosts_view(self, live_hosts):
         self.hosts_view.DeleteAllItems()
         for host in live_hosts:
+            if host['ip'] not in self._offline_hosts:
+                host_icon = wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon())
+            else:
+                host_icon = wx.dataview.DataViewIconText('', icon=icons.offline_24.GetIcon())
             self.hosts_view.AppendItem([
-                wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon()),
+                host_icon,
                 host['ip'],
                 host['mac'],
                 host['hostname']
