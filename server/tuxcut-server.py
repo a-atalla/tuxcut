@@ -13,7 +13,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 
 from utils import logger
-from utils import get_default_gw, get_my,get_hostname
+from utils import get_default_gw, get_my, get_hostname
 from utils import enable_ip_forward, disable_ip_forward, arp_spoof, arp_unspoof
 
 
@@ -32,7 +32,7 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 scheduler.add_job(
     func=attack_victims,
-    trigger=IntervalTrigger(seconds=3),
+    trigger=IntervalTrigger(seconds=1),
     id='arp_attack_job',
     name='ARP Spoofing the victim list',
     replace_existing=True)
@@ -40,7 +40,7 @@ scheduler.add_job(
 
 # Shut down the scheduler when exiting the app
 def on_server_exit():
-    logger.info('TuxCut server is shutting down')
+    logger.info('TuxCut server is stopped')
     enable_ip_forward()
     scheduler.shutdown()
 
@@ -88,6 +88,7 @@ def get_gw():
             'gw': gw
         })
     else:
+        logger.info('No valid internet Connection')
         return json.dumps({
             'status': 'error',
             'msg': 'This computer is not connected'
@@ -98,17 +99,17 @@ def get_gw():
 def scan(gw_ip):
     response.headers['Content-Type'] = 'application/json'
     live_hosts = list()
-
+    logger.info('Start scanning {}'.format(gw_ip))
     ans, unans = arping('{}/24'.format(gw_ip), verbose=False)
-
+    logger.info('ans: {}'.format(ans))
+    logger.info('unans: {} '.format(unans))
     for i in range(0, len(ans)):
-
         live_hosts.append({
             'ip': ans[i][1].psrc,
             'mac': ans[i][1].hwsrc,
             'hostname': get_hostname(ans[i][1].psrc)
         })
-
+    logger.info('live hosts: {}'.format(live_hosts))
     return json.dumps({
         'result': {
             'status': 'success',
@@ -194,3 +195,4 @@ def resume_victim():
 
 if __name__ == '__main__':
     run(host='127.0.0.1', port=8013, reloader=True)
+    logger.info('TuxCut server successfully started')

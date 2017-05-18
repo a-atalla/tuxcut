@@ -1,9 +1,19 @@
+import os
 import sys
+import logging
 import requests
 from threading import Thread
 import wx
 from gui import MainFrame
 import icons
+
+LOG_DIR = '/var/log/tuxcut'
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('tuxcut-client')
+handler = logging.FileHandler(os.path.join(LOG_DIR, 'tuxcut.log'))
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 class MainFrameView(MainFrame):
@@ -15,6 +25,7 @@ class MainFrameView(MainFrame):
 
         self.SetIcon(icons.ninja_32.GetIcon())
 
+        # initialize
         self._gw = dict()
         self._my = dict()
         self.live_hosts = list()
@@ -22,7 +33,9 @@ class MainFrameView(MainFrame):
 
         # Check tuxcut server
         if not self.is_server():
-            self.show_dialog('error', 'TuxCut Server stopped', 'Please start TuxCut server and rerun the appp')
+            self.show_dialog('error',
+                             'TuxCut Server stopped',
+                             "use 'systemctl start tuxcut-server' then restart the application")
             self.Close()
         else:
             # Get the gw
@@ -37,6 +50,7 @@ class MainFrameView(MainFrame):
             self.hosts_view.AppendTextColumn('Hostname')
 
             self.trigger_thread()
+
 
     def setup_toolbar(self):
         tbtn_refresh = self.toolbar.AddTool(-1, '', icons.refresh_32.GetBitmap(), shortHelp='Refresh')
@@ -86,7 +100,6 @@ class MainFrameView(MainFrame):
         t.start()
 
     def on_exit(self, event):
-        print('Exit')
         self.unprotect()
         self.Close()
 
@@ -119,27 +132,30 @@ class MainFrameView(MainFrame):
     def fill_hosts_view(self, live_hosts):
         self.hosts_view.DeleteAllItems()
         for host in live_hosts:
+
             if host['ip'] not in self._offline_hosts:
                 host_icon = wx.dataview.DataViewIconText('', icon=icons.online_24.GetIcon())
+
             else:
                 host_icon = wx.dataview.DataViewIconText('', icon=icons.offline_24.GetIcon())
             self.hosts_view.AppendItem([
                 host_icon,
                 host['ip'],
                 host['mac'],
-                host['hostname']
+                host['hostname'],
             ])
+
         self.PushStatusText('Ready')
 
     def is_server(self):
         try:
             res = requests.get('http://127.0.0.1:8013/status')
             if res.status_code == 200 and res.json()['status'] == 'success':
-                print('server running')
                 return True
-        except Exception as e:
-            print('server stopped')
-            return False
+        except:
+            logger.error(sys.exc_info()[1], exc_info=True)
+
+        return False
 
     def get_gw(self):
         try:
@@ -151,7 +167,7 @@ class MainFrameView(MainFrame):
                 self.Close()
                 sys.exit()
         except Exception as e:
-            pass
+            logger.error(sys.exc_info()[1], exc_info=True)
 
     def get_my(self, iface):
         try:
@@ -164,7 +180,7 @@ class MainFrameView(MainFrame):
                 self.show_dialog('error', 'Error', res.json()['msg'])
                 self.Close()
         except Exception as e:
-            pass
+            logger.error(sys.exc_info()[1], exc_info=True)
 
     def toggle_protection(self, event):
         if self.cb_protection.GetValue():
@@ -181,7 +197,8 @@ class MainFrameView(MainFrame):
             if res.status_code == 200 and res.json()['status'] == 'success':
                 self.PushStatusText('Protection Enabled')
         except Exception as e:
-            print(sys.exc_info()[1])
+            logger.error(sys.exc_info()[1], exc_info=True)
+
     
     def unprotect(self):
         """
@@ -192,7 +209,7 @@ class MainFrameView(MainFrame):
             if res.status_code == 200 and res.json()['status'] == 'success':
                 self.PushStatusText('Protection Disabled')
         except Exception as e:
-            print(sys.exc_info()[1])
+            logger.error(sys.exc_info()[1], exc_info=True)
 
     def show_dialog(self, code, title, msg):
         if code == 'error':

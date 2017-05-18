@@ -1,0 +1,12 @@
+[Unit]
+Description=TuxCut server
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/tuxcut
+ExecStart=/opt/tuxcut/tuxcut-server
+
+[Install]
+WantedBy=multi-user.target
