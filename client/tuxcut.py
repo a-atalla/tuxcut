@@ -5,7 +5,6 @@ from setproctitle import setproctitle
 setproctitle('tuxcut')
 
 if __name__ == '__main__':
-    set
     app = wx.App(redirect=False)
     frame = MainFrameView(None)
     frame.Show()

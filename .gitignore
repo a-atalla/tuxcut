@@ -90,6 +90,9 @@ ENV/
 # PyCharm project
 .idea
 
+# VsCode
+.vscode
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -99,3 +102,7 @@ ENV/
 
 # mkdocs documentation
 /site
+
+# custom
+system_req.md
+core_old.py

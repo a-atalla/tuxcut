@@ -1,13 +1,21 @@
 import os
 import sys
 import logging
+from pathlib import Path
 import requests
 from threading import Thread
 import wx
 from gui import MainFrame
 import icons
 
-LOG_DIR = '/var/log/tuxcut'
+# LOG_DIR = '/var/log/tuxcut'
+LOG_DIR = os.path.join(str(Path.home()), '.tuxcut')
+if not os.path.isdir(LOG_DIR):
+    os.mkdir(LOG_DIR)
+    client_log = Path(os.path.join(LOG_DIR, 'tuxcut.log'))
+    client_log.touch(exist_ok=True)
+    client_log.chmod(0o666)
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('tuxcut-client')
 handler = logging.FileHandler(os.path.join(LOG_DIR, 'tuxcut.log'))
@@ -187,7 +195,7 @@ class MainFrameView(MainFrame):
             self.protect()
         else:
             self.unprotect()
-            
+
     def protect(self):
         """
         Enable Protection Mode
@@ -199,7 +207,7 @@ class MainFrameView(MainFrame):
         except Exception as e:
             logger.error(sys.exc_info()[1], exc_info=True)
 
-    
+
     def unprotect(self):
         """
         Disable Protection Mode
