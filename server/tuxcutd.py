@@ -1,3 +1,5 @@
+import sys
+import datetime as dt
 import json
 import atexit
 from setproctitle import setproctitle
@@ -13,9 +15,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 
 from utils import logger
-from utils import get_default_gw, get_my, get_hostname
+from utils import get_default_gw, get_my, get_hostname, generate_mac
 from utils import enable_ip_forward, disable_ip_forward, arp_spoof, arp_unspoof
-
 
 setproctitle('tuxcut-server')
 victims = list()
@@ -44,7 +45,14 @@ def on_server_exit():
     enable_ip_forward()
     scheduler.shutdown()
 
+
 atexit.register(on_server_exit)
+
+
+# Expire this beta version at the end of 2017
+if dt.datetime.today().year == 2018:
+    logger.info('This is a BETA version is expired')
+    sys.exit()
 
 
 @route('/status')
@@ -55,7 +63,7 @@ def server_status():
     response.headers['Content-Type'] = 'application/json'
 
     return json.dumps({
-        'status':  'success',
+        'status': 'success',
         'msg': 'TuxCut server is running'
     })
 
@@ -121,7 +129,7 @@ def scan(gw_ip):
 @route('/protect', method='POST')
 def enable_protection():
     response.headers['Content-Type'] = 'application/json'
-    
+
     gw_ip = request.forms.get('ip')
     gw_mac = request.forms.get('mac')
 
@@ -192,6 +200,28 @@ def resume_victim():
         'msg': 'victim  resumed'
     })
 
+@route('/change-mac/<iface>')
+def scan(iface):
+    response.headers['Content-Type'] = 'application/json'
+    logger.info('Changing MAC Address for interface {}'.format(iface))
+    new_MAC = generate_mac()
+    try:
+        # sp.Popen(['ifconfig', iface, 'down'], stdout=sp.PIPE)
+        sp.Popen(['ifconfig', iface, 'down', 'hw', 'ether', new_MAC], stdout=sp.PIPE)
+        sp.Popen(['ifconfig', iface, 'up'], stdout=sp.PIPE)
+        logger.info('MAC Address for interface {} Changed to {}'.format(iface, new_MAC))
+        return json.dumps({
+            'result': {
+                'status': 'success'
+            }
+        })
+    except Exception as e:
+        logger.error(sys.exc_info()[1], exc_info=True)
+        return json.dumps({
+            'result': {
+                'status': 'failed'
+            }
+        })
 
 if __name__ == '__main__':
     run(host='127.0.0.1', port=8013, reloader=True)
