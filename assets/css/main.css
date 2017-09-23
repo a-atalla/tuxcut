@@ -1,4 +1,3 @@
-
 body {
   background-color: #f2f2f2;
     font-family: "Lato";
@@ -43,7 +42,7 @@ a {
 
 a:hover,
 a:focus {
-    color: #c0392b;
+    
     text-decoration: none;
     outline: 0;
 }
@@ -158,3 +157,14 @@ a:after {
 	color: white
 }
 
+
+.social {
+    display: flex;
+    justify-content: space-around;
+    align-items: center
+}
+
+.social-link{
+    text-decoration: none;
+    color: inherit;
+}
