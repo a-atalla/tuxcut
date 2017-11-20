@@ -8,7 +8,7 @@ macholib==1.8
 netifaces==0.10.5
 packaging==16.8
 pefile==2017.9.3
-PyInstaller==3.3.dev0+g711e9e77
+PyInstaller==3.3
 pyparsing==2.2.0
 pytz==2017.2
 requests==2.13.0
