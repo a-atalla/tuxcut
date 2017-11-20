@@ -165,3 +165,12 @@ def arp_unspoof(victim):
         logger.info('Done Resuming host')
     except Exception as e:
         logger.error(sys.exc_info()[1], exc_info=True)
+
+
+def generate_mac():
+	return ':'.join(map(lambda x: "%02x" % x, [ 0x00,
+												random.randint(0x00, 0x7f),
+												random.randint(0x00, 0x7f),
+												random.randint(0x00, 0x7f),
+												random.randint(0x00, 0xff),
+												random.randint(0x00, 0xff)]))
