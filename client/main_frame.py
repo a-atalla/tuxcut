@@ -6,6 +6,7 @@ import shelve
 import requests
 from threading import Thread
 import wx
+import wx.adv
 from gui import MainFrame
 import icons
 
@@ -33,11 +34,7 @@ class MainFrameView(MainFrame):
 
         self.SetIcon(icons.ninja_32.GetIcon())
 
-<<<<<<< HEAD
         self.aliases = shelve.open( os.path.join(APP_DIR, 'aliases.db'))
-=======
-        self.aliases = shelve.open(os.path.join(APP_DIR, 'aliases.db'))
->>>>>>> fc1599ead9326704a422d9cc1858d4cce3530f80
         # initialize
         self._gw = dict()
         self._my = dict()
@@ -71,13 +68,8 @@ class MainFrameView(MainFrame):
         tbtn_resume = self.toolbar.AddTool(-1, '', icons.resume_32.GetBitmap(), shortHelp='Resume')
         self.toolbar.AddSeparator()
         tbtn_change_mac = self.toolbar.AddTool(-1, '', icons.mac_32.GetBitmap(), shortHelp='Change MAC Address')
-<<<<<<< HEAD
         tbtn_alias = self.toolbar.AddTool(-1, '', icons.alias_32.GetBitmap(), shortHelp='Give an alias')
-=======
-        tbtn_alias = self.toolbar.AddTool(333, '', icons.alias_32.GetBitmap(), shortHelp='Give an alias')
-        # TODO: the next line for BETA, should be removed in final version
-        self.toolbar.EnableTool(333, False)
->>>>>>> fc1599ead9326704a422d9cc1858d4cce3530f80
+
         self.toolbar.AddSeparator()
         tbtn_exit = self.toolbar.AddTool(-1, '', icons.exit_32.GetBitmap(), shortHelp='Exit')
 
@@ -135,11 +127,7 @@ class MainFrameView(MainFrame):
         if res.status_code == 200:
             if res.json()['result']['status'] == 'success':
                 print('MAC Address changed')
-<<<<<<< HEAD
             elif  res.json()['result']['status'] == 'failed':
-=======
-            elif res.json()['result']['status'] == 'failed':
->>>>>>> fc1599ead9326704a422d9cc1858d4cce3530f80
                 print('Couldn\'t change MAC')
 
     def on_give_alias(self, event):
@@ -149,13 +137,8 @@ class MainFrameView(MainFrame):
         else:
             mac = self.hosts_view.GetTextValue(row, 2)
             dialog = wx.TextEntryDialog(None,
-<<<<<<< HEAD
                         'Enter an alias for the computer with MAC "{}" !'.format(mac),
                         'Text Entry', 'My Computer', style=wx.OK|wx.CANCEL)
-=======
-                                        'Enter an alias for the computer with MAC "{}" !'.format(mac),
-                                        'Text Entry', 'My Computer', style=wx.OK | wx.CANCEL)
->>>>>>> fc1599ead9326704a422d9cc1858d4cce3530f80
             if dialog.ShowModal() == wx.ID_OK:
                 alias = dialog.GetValue()
                 self.aliases[mac] = alias
@@ -262,7 +245,8 @@ class MainFrameView(MainFrame):
 
     def unprotect(self):
         """
-        Disable Protection Mode
+        Disable Protection MoModuleNotFoundError: No module named 'icons'
+de
         """
         try:
             res = requests.get('http://127.0.0.1:8013/unprotect')
