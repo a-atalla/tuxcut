@@ -142,7 +142,7 @@ a:after {
 }
 
 #footerwrap h3 {
-	font-size: 28px;
+	font-size: 30px;
 	color: white;
 }
 
@@ -173,4 +173,8 @@ a:after {
 .social-link{
     text-decoration: none;
     color: inherit;
+}
+
+.social-item{
+    font-size: 2em;
 }
