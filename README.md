@@ -17,7 +17,7 @@ Get your package from [Download](https://github.com/a-atalla/tuxcut/releases) se
 # Run from source
 - create virtualenv `python3 -m venv env_name`.
 - activate the environment `source env_name/bin/activate`.
-- Get [WxPython](https://extras.wxpython.org/wxPython4/extras/linux/gtk3/) and install it insidethe active venv `pip install wxPython-4.xxxxx.whl`
+- Get [WxPython](https://extras.wxpython.org/wxPython4/extras/linux/gtk3/) and install it inside the active venv `pip install wxPython-4.xxxxx.whl`
 - install the rest of python packages `pip install -r requirements.txt`.
 - run the server with root priviliages `sudo env_name/bin/python3 server/tuxcutd.py`.
 - run the gui `env_name/python3 client/tuxcut.py`.
