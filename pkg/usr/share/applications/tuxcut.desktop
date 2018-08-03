@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=TuxCut
+Version=6.0
+Exec=/usr/bin/tuxcut
+Comment=
+Icon=tuxcut.png
+Type=Application
+Terminal=false
+StartupNotify=true
+Encoding=UTF-8
+Categories=Utility;Security;Network;
