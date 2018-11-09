@@ -7,4 +7,7 @@ $(document).ready(function(){
       $('#count').text(totalCount)
     }
   })
+
+  // Update copyright year
+  $('#copyright').text($('#copyright').text().replace('#YEAR#', new Date().getFullYear()))
 })
