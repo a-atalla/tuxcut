@@ -20,5 +20,5 @@ Get your package from [Download](https://github.com/a-atalla/tuxcut/releases) se
 - Get [WxPython](https://extras.wxpython.org/wxPython4/extras/linux/gtk3/) and install it inside the active venv `pip install wxPython-4.xxxxx.whl`
 - install the rest of python packages `pip install -r requirements.txt`.
 - run the server with root priviliages `sudo env_name/bin/python3 server/tuxcutd.py`.
-- run the gui `env_name/python3 client/tuxcut.py`.
+- run the gui `env_name/bin/python3 client/tuxcut.py`.
 - To build packages you need to install [FPM](https://github.com/jordansissel/fpm)  then run the script `build.sh`
