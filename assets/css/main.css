@@ -178,3 +178,22 @@ a:after {
 .social-item{
     font-size: 2em;
 }
+.coffee-btn {
+    background-color: #34495e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 8px 0 8px;
+    border-radius: 8px;
+}
+.coffee-btn a {
+    color: #ddd !important;
+    font-weight: 900;
+    padding: 8px !important;
+    text-transform: uppercase;
+}
+.svg-inline--fa.fa-mug-hot.fa-w-16 {
+    width: 16px !important;
+    color: #ddd;
+    margin: 0 8px
+}
