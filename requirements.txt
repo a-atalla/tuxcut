@@ -12,7 +12,7 @@ PyInstaller==3.3.1
 pylint==2.1.0
 pyparsing==2.2.0
 pytz==2017.2
-requests==2.13.0
+requests==2.20.0
 scapy-python3==0.25
 setproctitle==1.1.10
 six==1.10.0
