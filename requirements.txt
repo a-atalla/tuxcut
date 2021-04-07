@@ -2,7 +2,7 @@
 altgraph==0.14
 appdirs==1.4.3
 APScheduler==3.5.1
-bottle==0.12.13
+bottle==0.12.19
 future==0.16.0
 macholib==1.8
 netifaces==0.10.5
