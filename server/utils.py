@@ -63,7 +63,7 @@ def get_default_gw():
 
         # send arp packet to gw to get the MAC Address of the router
         try:
-            results, unanswered = sr(ARP(op=ARP.who_has, psrc='8.8.8.8', pdst=default_gw[0]))
+            results, unanswered = sr(ARP(op="who-has", psrc='8.8.8.8', pdst=default_gw[0]))
             for r in results[0]:
                 if r.psrc == default_gw[0]:
                     gw_mac = r.hwsrc
