@@ -4,13 +4,14 @@ import sys
 import subprocess as sp
 import logging
 from scapy.all import *
+from scapy.layers.l2 import ARP
 import netifaces
 
-
-LOG_DIR = '/var/log/tuxcut'
+HOME_DIR = str(Path.home())
+LOG_DIR = HOME_DIR +'/.cache/arproof/log'
 if not os.path.isdir(LOG_DIR):
-    os.mkdir(LOG_DIR)
-    server_log = Path(os.path.join(LOG_DIR, 'tuxcut.log'))
+    os.makedirs(LOG_DIR, exist_ok=True)
+    server_log = Path(os.path.join(LOG_DIR, 'tuxcutd.log'))
     server_log.touch(exist_ok=True)
     server_log.chmod(0o666)
 
