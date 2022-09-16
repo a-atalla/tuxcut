@@ -2,7 +2,7 @@
 A front-end Cli-app utility for Tuxcut's daemon. This program will protect your linux PC from ARP spoofing attack.
 
 Since the tuxcut GUI (Official client) was broken and seems to be abandoned, I decided to write my own client for the tuxcut's daemon server.
-This method is proven to be effective againts NetCut atleast in my case. Executing this program will also spoof your PC's MAC address. 
+This method is proven to be effective against NetCut atleast in my case. Executing this program will also spoof your PC's MAC address. 
 
 Note : This program is for linux distributions with Systemd only! \
 Tested on Mint 21
