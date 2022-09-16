@@ -7,6 +7,7 @@ import logging
 import subprocess as sp
 import netifaces
 from scapy.all import *
+from scapy.layers.l2 import arping
 from bottle import route, run
 from bottle import request, response
 
@@ -14,9 +15,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 
-from utils import logger
-from utils import get_default_gw, get_my, get_hostname, generate_mac
-from utils import enable_ip_forward, disable_ip_forward, arp_spoof, arp_unspoof
+from server.utils import logger
+from server.utils import get_default_gw, get_my, get_hostname, generate_mac
+from server.utils import enable_ip_forward, disable_ip_forward, arp_spoof, arp_unspoof
 
 setproctitle('tuxcut-server')
 victims = list()
@@ -216,6 +217,12 @@ def scan(iface):
             }
         })
 
-if __name__ == '__main__':
+def isOnRootPrivilege():
+    if not os.geteuid() == 0:
+        sys.exit("\nOnly root can run this script\n")
+
     run(host='127.0.0.1', port=8013, reloader=True)
     logger.info('TuxCut server successfully started')
+
+if __name__ == '__main__':
+    isOnRootPrivilege()
